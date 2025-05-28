@@ -1,71 +1,38 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { ErrorBoundary } from "react-error-boundary";
+import ErrorFallback from "./components/ErrorFallback";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 import Dashboard from "./pages/Dashboard";
-import Login from "./pages/LoginAndSignUp";
-import Profile from "./pages/Profile";
-import Settings from "./pages/Settings";
-import OTPVerification from "./pages/OTP";
-import NotFound from "./pages/NotFound";
-import AppDetails from "./pages/AppsDetails.jsx";
-import PrivateRoute from "./routes/PrivateRoute.jsx"; // Import the PrivateRoute component
-import ProtectedLogin from "./routes/ProtectedLogin.jsx";
-import ProtectedOTP from "./routes/ProtectedOTP.jsx";
 
-const App = () => {
+function App() {
   return (
-    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <Routes>
-        <Route path="*" element={<NotFound />} />
-        <Route path="/app-details/:appName" element={<AppDetails />} />
+    <Router>
+      <div className="flex flex-col min-h-screen w-full bg-gray-100">
+        {/* Global Navbar */}
+        <Navbar user={JSON.parse(localStorage.getItem("user"))} Logout={() => {
+          sessionStorage.clear();
+          localStorage.removeItem("user");
+          window.location.href = "/login";
+        }} />
 
-        {/* Protected Route */}
-        <Route
-          path="/profile"
-          element={
-            <PrivateRoute>
-              <Profile />
-            </PrivateRoute>
-          }
-        />
+        {/* Routes with Error Boundary */}
+        <main className="flex-grow mt-4">
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <ErrorBoundary FallbackComponent={ErrorFallback}>
+                  <Dashboard />
+                </ErrorBoundary>
+              }
+            />
+          </Routes>
+        </main>
 
-        {/* Protected Route */}
-        <Route
-          path="/settings"
-          element={
-            <PrivateRoute>
-              <Settings />
-            </PrivateRoute>
-          }
-        />
-
-        {/* Protected Route */}
-        <Route
-          path="/"
-          element={
-            <PrivateRoute>
-              <Dashboard />
-            </PrivateRoute>
-          }
-        />
-
-        {/* Protected Login Route */}
-        <Route
-          path="/login"
-          element={
-            <ProtectedLogin>
-              <Login />
-            </ProtectedLogin>
-          }
-        />
-        {/* Protected OTP Route */}
-        <Route
-          path="/otp"
-          element={
-            <ProtectedOTP>
-              <OTPVerification />
-            </ProtectedOTP>
-          }
-        />
-      </Routes>
+        {/* Global Footer */}
+        <Footer />
+      </div>
     </Router>
   );
 }

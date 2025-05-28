@@ -13,9 +13,12 @@
     "@tailwindcss/vite": "^4.1.7",
     "axios": "^1.7.7",
     "bootstrap": "^5.0.1",
+    "lucide-react": "^0.511.0",
+    "mahfuz-js-frontend": "^1.0.5",
     "prop-types": "^15.8.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-error-boundary": "^6.0.0",
     "react-router-dom": "^6.28.0",
     "sweetalert": "^2.1.2",
     "tailwindcss": "^4.1.7"
