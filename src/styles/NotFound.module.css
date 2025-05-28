@@ -1,0 +1,52 @@
+/* src/pages/NotFound.module.css */
+
+/* Container specific to NotFound */
+.notFoundPage {
+  text-align: center;
+}
+
+.notFoundContent {
+  background: #fff;
+  padding: 40px 60px;
+  border-radius: 15px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* Heading Styles */
+.notFoundPage h1 {
+  font-size: 120px;
+  font-weight: bold;
+  color: #ff6347;
+  margin-bottom: 10px;
+  text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.notFoundPage p {
+  font-size: 18px;
+  margin-bottom: 30px;
+  color: #555;
+}
+
+/* Button Styles */
+.notFoundPage .backHome {
+  font-size: 16px;
+  padding: 10px 25px;
+  background-color: #ff6347;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 25px;
+  text-transform: uppercase;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.notFoundPage .backHome:hover {
+  background-color: #e55347;
+}
+
+/* Hover Effect for the container */
+.notFoundPage:hover .notFoundContent {
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.15);
+  transform: scale(1.05);
+}
