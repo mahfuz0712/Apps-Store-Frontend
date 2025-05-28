@@ -21,7 +21,7 @@ const Header = ({ user, Logout }) => {
   }, []);
 
   return (
-    <header className="bg-green-600 text-white shadow-md">
+    <header className="bg-green-600 text-white shadow-md fixed top-0 left-0 w-full z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-wrap items-center justify-between">
         
         {/* Logo/Title */}
