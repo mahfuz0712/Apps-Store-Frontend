@@ -40,11 +40,11 @@ const Login = () => {
           setLoading(true);
           const loginUrl = import.meta.env.VITE_LOGIN;
           const response = await axios.post(loginUrl, {
-            email: emailForLogin,
-            password: passwordForLogin,
+            Email: emailForLogin,
+            Password: passwordForLogin,
           });
 
-          if (response.data.success) {
+          if (response.data?.success) {
             const userData = response.data.user;
             localStorage.setItem(
               "user",

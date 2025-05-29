@@ -8,6 +8,8 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Login from "./pages/Login";
 import PrivateRoute from "./routes/PrivateRoute";
 import ApplicationForm from "./pages/ApplicationForm";
+// import UserManagement from "./pages/UserManagement";
+// import AppManagement from "./pages/AppManagement";
 
 function App() {
   return (
@@ -37,11 +39,11 @@ function App() {
             <Route
               path="/admin"
               element={
-                <PrivateRoute requiredRole="admin">
-                  <ErrorBoundary FallbackComponent={ErrorFallback}>
-                    <AdminDashboard />
-                  </ErrorBoundary>
-                </PrivateRoute>
+                // <PrivateRoute requiredRole="admin">
+                <ErrorBoundary FallbackComponent={ErrorFallback}>
+                  <AdminDashboard />
+                </ErrorBoundary>
+                // </PrivateRoute>
               }
             />
             <Route
@@ -60,6 +62,8 @@ function App() {
                 </ErrorBoundary>
               }
             />
+            {/* <Route path="/admin/users" element={<UserManagement />} /> */}
+            {/* <Route path="/admin/apps" element={<AppManagement />} /> */}
           </Routes>
         </main>
 
