@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
-import { Menu } from 'lucide-react'; // icon from Lucide (you can use any SVG if needed)
+import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
+import { Menu } from "lucide-react"; // icon from Lucide (you can use any SVG if needed)
 
 const Header = ({ user, Logout }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -23,7 +23,6 @@ const Header = ({ user, Logout }) => {
   return (
     <header className="bg-green-600 text-white shadow-md fixed top-0 left-0 w-full z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-wrap items-center justify-between">
-        
         {/* Logo/Title */}
         <div className="text-2xl font-semibold">
           Mahfuz<span className="font-light text-sm">'s Apps Store</span>
@@ -62,13 +61,34 @@ const Header = ({ user, Logout }) => {
 
           {/* Dropdown menu */}
           {dropdownOpen && (
-            <div className="absolute right-0 mt-2 w-44 bg-white rounded-lg shadow-lg z-50">
+            <div className="absolute right-0 mt-2 w-52 bg-white rounded-lg shadow-lg z-50">
               <ul className="divide-y divide-gray-200 text-sm text-gray-700">
+                {user?.role === "developer" || user?.role === "admin" ? (
+                  <li>
+                    <Link
+                      to="/profile"
+                      className="block px-4 py-3 hover:bg-gray-100"
+                    >
+                      Profile
+                    </Link>
+                  </li>
+                ) : (
+                  <li>
+                    <Link
+                      to="/application"
+                      className="block px-4 py-3 hover:bg-gray-100"
+                    >
+                      Apply for Developer Account
+                    </Link>
+                  </li>
+                )}
                 <li>
-                  <Link to="/profile" className="block px-4 py-3 hover:bg-gray-100">Profile</Link>
-                </li>
-                <li>
-                  <Link to="/settings" className="block px-4 py-3 hover:bg-gray-100">Settings</Link>
+                  <Link
+                    to="/settings"
+                    className="block px-4 py-3 hover:bg-gray-100"
+                  >
+                    Settings
+                  </Link>
                 </li>
                 <li>
                   <button

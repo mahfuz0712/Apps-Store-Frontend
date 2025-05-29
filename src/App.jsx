@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import Login from "./pages/Login";
 import PrivateRoute from "./routes/PrivateRoute";
+import ApplicationForm from "./pages/ApplicationForm";
 
 function App() {
   return (
@@ -50,7 +51,15 @@ function App() {
                   <Login />
                 </ErrorBoundary>
               }
-              />
+            />
+            <Route
+              path="/application"
+              element={
+                <ErrorBoundary FallbackComponent={ErrorFallback}>
+                  <ApplicationForm />
+                </ErrorBoundary>
+              }
+            />
           </Routes>
         </main>
 
