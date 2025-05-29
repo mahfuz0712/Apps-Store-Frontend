@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Menu } from "lucide-react"; // icon from Lucide (you can use any SVG if needed)
 
 const Header = ({ user, Logout }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef();
+  const navigate = useNavigate();
 
   const toggleDropdown = () => setDropdownOpen((prev) => !prev);
 
@@ -63,6 +64,11 @@ const Header = ({ user, Logout }) => {
           {dropdownOpen && (
             <div className="absolute right-0 mt-2 w-52 bg-white rounded-lg shadow-lg z-50">
               <ul className="divide-y divide-gray-200 text-sm text-gray-700">
+                <li>
+                  <Link to="/" className="block px-4 py-3 hover:bg-gray-100">
+                    Home
+                  </Link>
+                </li>
                 {user?.role === "developer" || user?.role === "admin" ? (
                   <li>
                     <Link
@@ -78,7 +84,7 @@ const Header = ({ user, Logout }) => {
                       to="/application"
                       className="block px-4 py-3 hover:bg-gray-100"
                     >
-                      Apply for Developer Account
+                      Apply for a Developer Account
                     </Link>
                   </li>
                 )}
@@ -90,14 +96,27 @@ const Header = ({ user, Logout }) => {
                     Settings
                   </Link>
                 </li>
-                <li>
-                  <button
-                    onClick={Logout}
-                    className="w-full text-left px-4 py-3 text-red-600 hover:bg-gray-100"
-                  >
-                    Logout
-                  </button>
-                </li>
+                {user?.role === "developer" || user?.role === "admin" ? (
+                  <li>
+                    <button
+                      onClick={Logout}
+                      className="w-full text-left px-4 py-3 text-red-600 hover:bg-gray-100"
+                    >
+                      Logout
+                    </button>
+                  </li>
+                ) : (
+                  <li>
+                    <button
+                      onClick={() => {
+                        navigate("/login");
+                      }}
+                      className="w-full text-left px-4 py-3 text-dark-600 hover:bg-gray-100"
+                    >
+                      Login
+                    </button>
+                  </li>
+                )}
               </ul>
             </div>
           )}

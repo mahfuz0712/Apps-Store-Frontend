@@ -8,7 +8,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Login from "./pages/Login";
 import PrivateRoute from "./routes/PrivateRoute";
 import ApplicationForm from "./pages/ApplicationForm";
-// import UserManagement from "./pages/UserManagement";
+import UserManagement from "./pages/UserManagement";
 // import AppManagement from "./pages/AppManagement";
 
 function App() {
@@ -62,7 +62,7 @@ function App() {
                 </ErrorBoundary>
               }
             />
-            {/* <Route path="/admin/users" element={<UserManagement />} /> */}
+            <Route path="/admin/users" element={<UserManagement />} />
             {/* <Route path="/admin/apps" element={<AppManagement />} /> */}
           </Routes>
         </main>
