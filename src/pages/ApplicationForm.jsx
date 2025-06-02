@@ -117,7 +117,7 @@ const ApplicationForm = () => {
           className="w-full px-4 py-2 border rounded"
         />
         <input
-          type="number"
+          type="text"
           name="PaidAmount"
           placeholder="Paid Amount"
           value={formData.PaidAmount}

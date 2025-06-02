@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu } from "lucide-react"; // icon from Lucide (you can use any SVG if needed)
 
-const Header = ({ user, Logout }) => {
+const Navbar = ({ User, Logout }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef();
   const navigate = useNavigate();
@@ -51,7 +51,7 @@ const Header = ({ user, Logout }) => {
 
           {/* Desktop user + menu button */}
           <div className="hidden sm:flex items-center space-x-2">
-            {user && <span className="text-sm">Hi, {user.name}</span>}
+            {User && <span className="text-sm">Hi, {User.name}</span>}
             <button
               onClick={toggleDropdown}
               className="bg-white text-green-600 px-4 py-2 rounded-md hover:bg-gray-100 shadow-sm transition"
@@ -69,7 +69,7 @@ const Header = ({ user, Logout }) => {
                     Home
                   </Link>
                 </li>
-                {user?.role === "developer" || user?.role === "admin" ? (
+                {User?.role === "developer" || User?.role === "admin" ? (
                   <li>
                     <Link
                       to="/profile"
@@ -96,7 +96,7 @@ const Header = ({ user, Logout }) => {
                     Settings
                   </Link>
                 </li>
-                {user?.role === "developer" || user?.role === "admin" ? (
+                {User?.role === "developer" || User?.role === "admin" ? (
                   <li>
                     <button
                       onClick={Logout}
@@ -126,9 +126,9 @@ const Header = ({ user, Logout }) => {
   );
 };
 
-Header.propTypes = {
+Navbar.propTypes = {
+  User: PropTypes.object,
   Logout: PropTypes.func.isRequired,
-  user: PropTypes.object,
 };
 
-export default Header;
+export default Navbar;

@@ -17,7 +17,7 @@ function App() {
       <div className="flex flex-col min-h-screen w-full bg-gray-100">
         {/* Global Navbar */}
         <Navbar
-          user={JSON.parse(localStorage.getItem("user"))}
+          User={JSON.parse(localStorage.getItem("user"))}
           Logout={() => {
             sessionStorage.clear();
             localStorage.removeItem("user");
