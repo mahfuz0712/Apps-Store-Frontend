@@ -3,6 +3,7 @@ import Button from "../components/Button";
 import { X, Plus, Search, Edit, Trash2, Check, XCircle, UserPlus, Mail, Phone, Calendar } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { api } from "../apis/v1/v1";
+import React from "react";
 
 function AdminDashboard() {
   // Developer Modal States
@@ -35,9 +36,9 @@ function AdminDashboard() {
   // App Form states
   const [appFormData, setAppFormData] = useState({
     name: "",
-    developerId: "",
+    developerName: "",
+    companyName: "",
     category: "",
-    description: "",
     version: "1.0.0",
     status: "Pending"
   });
@@ -97,46 +98,43 @@ function AdminDashboard() {
   const fetchDevelopers = () => {
     setLoading(true);
     // Simulate API call
-    setTimeout(() => {
-      const mockDevelopers = [
-        {
-          id: "1",
-          name: "Mohammad Rahman",
-          email: "rahman@developer.com",
-          phone: "+880 1712345678",
-          joinedDate: "Jan 15, 2023",
-          status: "Active",
-          apps: 3
-        },
-        {
-          id: "2",
-          name: "Arif Khan",
-          email: "arif@developer.com",
-          phone: "+880 1812345678",
-          joinedDate: "Feb 20, 2023",
-          status: "Active",
-          apps: 1
-        },
-        {
-          id: "3",
-          name: "Fatima Begum",
-          email: "fatima@developer.com",
-          phone: "+880 1912345678",
-          joinedDate: "Mar 5, 2023",
-          status: "Pending",
-          apps: 0
-        },
-        {
-          id: "4",
-          name: "Kamal Hossain",
-          email: "kamal@developer.com",
-          phone: "+880 1612345678",
-          joinedDate: "Apr 10, 2023",
-          status: "Suspended",
-          apps: 2
+    setTimeout(async () => {
+      try {
+        const UsersURL = import.meta.env.VITE_GET_USERS;
+        console.log("Fetching developers from:", UsersURL);
+        const response = await api.get(UsersURL);
+        console.log("API Response:", response.data);
+        
+        // Check if response data structure is as expected
+        if (response.data && Array.isArray(response.data.data)) {
+          const allUsers = response.data.data;
+          console.log("All users:", allUsers);
+          
+          // Filter out only users with Role "Developer"
+          const developerUsers = allUsers.filter(user => user.Role === "Developer");
+          console.log("Developer users:", developerUsers);
+          
+          // Map the API response to match the expected property names
+          const mappedDevelopers = developerUsers.map(dev => ({
+            id: dev._id || dev.id,
+            name: dev.Name || dev.name || 'Unknown',
+            email: dev.Email || dev.email || 'No email',
+            phone: dev.Phone || dev.phone || "N/A",
+            joinedDate: dev.createdAt ? new Date(dev.createdAt).toLocaleDateString() : "N/A",
+            status: dev.Status || dev.status || "Active",
+            apps: 0 // Default value
+          }));
+          
+          console.log("Mapped developers:", mappedDevelopers);
+          setDevelopers(mappedDevelopers);
+        } else {
+          console.error("Invalid response format:", response.data);
+          setDevelopers([]);
         }
-      ];
-      setDevelopers(mockDevelopers);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        setDevelopers([]);
+      }
       setLoading(false);
     }, 800);
   };
@@ -182,11 +180,11 @@ function AdminDashboard() {
   const startEdit = (developer) => {
     setEditingDeveloper(developer.id);
     setFormData({
-      name: developer.name,
-      email: developer.email,
-      phone: developer.phone,
-      joinedDate: developer.joinedDate,
-      status: developer.status
+      name: developer.name || '',
+      email: developer.email || '',
+      phone: developer.phone || '',
+      joinedDate: developer.joinedDate || '',
+      status: developer.status || 'Active'
     });
   };
   
@@ -238,64 +236,91 @@ function AdminDashboard() {
   };
   
   // Filter developers based on search
-  const filteredDevelopers = developers.filter(dev => 
-    dev.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    dev.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    dev.status.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredDevelopers = developers.filter(dev => {
+    if (!dev) return false;
+    
+    // Check if properties exist before calling toLowerCase()
+    const name = dev.name || '';
+    const email = dev.email || '';
+    const status = dev.status || '';
+    
+    return name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           status.toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
-  // Mock function to fetch apps - would be replaced with API call
+  // Fetch apps from API
   const fetchApps = () => {
     setAppsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      const mockApps = [
-        {
-          id: "1",
-          name: "Task Manager Pro",
-          developerName: "Mohammad Rahman",
-          developerId: "1",
-          category: "Productivity",
-          status: "Approved",
-          version: "2.1.0",
-          description: "A comprehensive task management application",
-          downloads: 12450
-        },
-        {
-          id: "2",
-          name: "Cool Math Games",
-          developerName: "Arif Khan",
-          developerId: "2",
-          category: "Education",
-          status: "Approved",
-          version: "1.5.2",
-          description: "Fun math games for all ages",
-          downloads: 8790
-        },
-        {
-          id: "3",
-          name: "Recipe Finder",
-          developerName: "Fatima Begum",
-          developerId: "3",
-          category: "Utilities",
-          status: "Pending",
-          version: "1.0.0",
-          description: "Find recipes based on ingredients you have",
-          downloads: 0
-        },
-        {
-          id: "4",
-          name: "Zombie Shooter",
-          developerName: "Kamal Hossain",
-          developerId: "4",
-          category: "Games",
-          status: "Rejected",
-          version: "0.9.5",
-          description: "Action-packed zombie shooter game",
-          downloads: 3210
+    setTimeout(async() => {
+      try {
+        const AppsURL = import.meta.env.VITE_GET_APPS;
+        console.log("Fetching apps from:", AppsURL);
+        const response = await api.get(AppsURL);
+        console.log("API Response:", response.data);
+        
+        // Ensure we have an array of apps
+        let appData = [];
+        if (response.data && response.data.data) {
+          // If data.appsList exists, use that (from the API response)
+          if (response.data.data.appsList && Array.isArray(response.data.data.appsList)) {
+            appData = response.data.data.appsList.map(app => ({
+              id: app._id,
+              name: app.Name,
+              developerName: app.Publisher?.DevelopedBy || 'Unknown',
+              companyName: app.Publisher?.CompanyName || 'Unknown',
+              category: app.Category,
+              status: 'Approved', // Default status
+              version: app.Version,
+              description: app.Description || '',
+              downloads: app.Downloads || 0,
+              githubUsername: app.GithubUsername,
+              repoName: app.RepoName,
+              released: app.Released ? new Date(app.Released).toLocaleDateString() : 'N/A'
+            }));
+          } else if (Array.isArray(response.data.data)) {
+            appData = response.data.data.map(app => ({
+              id: app._id,
+              name: app.Name,
+              developerName: app.Publisher?.DevelopedBy || 'Unknown',
+              companyName: app.Publisher?.CompanyName || 'Unknown',
+              category: app.Category,
+              status: 'Approved', // Default status
+              version: app.Version,
+              description: app.Description || '',
+              downloads: app.Downloads || 0,
+              githubUsername: app.GithubUsername,
+              repoName: app.RepoName,
+              released: app.Released ? new Date(app.Released).toLocaleDateString() : 'N/A'
+            }));
+          } else if (typeof response.data.data === 'object') {
+            // If it's an object but not an array, try to extract values
+            appData = Object.values(response.data.data).map(app => {
+              if (!app) return null;
+              return {
+                id: app._id,
+                name: app.Name,
+                developerName: app.Publisher?.DevelopedBy || 'Unknown',
+                companyName: app.Publisher?.CompanyName || 'Unknown',
+                category: app.Category,
+                status: 'Approved', // Default status
+                version: app.Version,
+                description: app.Description || '',
+                downloads: app.Downloads || 0,
+                githubUsername: app.GithubUsername,
+                repoName: app.RepoName,
+                released: app.Released ? new Date(app.Released).toLocaleDateString() : 'N/A'
+              };
+            }).filter(Boolean);
+          }
         }
-      ];
-      setApps(mockApps);
+        
+        console.log("Processed app data:", appData);
+        setApps(appData);
+      } catch (error) {
+        console.error("Error fetching apps:", error);
+        setApps([]);
+      }
       setAppsLoading(false);
     }, 800);
   };
@@ -313,7 +338,7 @@ function AdminDashboard() {
   const handleAddApp = (e) => {
     e.preventDefault();
     // Validate form
-    if (!appFormData.name || !appFormData.developerId || !appFormData.category || !appFormData.description) {
+    if (!appFormData.name || !appFormData.developerName || !appFormData.category || !appFormData.version) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -332,9 +357,9 @@ function AdminDashboard() {
     setApps([...apps, newApp]);
     setAppFormData({
       name: "",
-      developerId: "",
+      developerName: "",
+      companyName: "",
       category: "",
-      description: "",
       version: "1.0.0",
       status: "Pending"
     });
@@ -344,14 +369,14 @@ function AdminDashboard() {
   
   // Start editing an app
   const startAppEdit = (app) => {
-    setEditingApp(app.id);
+    setEditingApp(app.id || app._id);
     setAppFormData({
-      name: app.name,
-      developerId: app.developerId,
-      category: app.category,
-      description: app.description,
-      version: app.version,
-      status: app.status
+      name: app.name || app.Name || '',
+      developerName: app.developerName || app.DeveloperName || '',
+      companyName: app.companyName || app.CompanyName || '',
+      category: app.category || app.Category || '',
+      version: app.version || app.Version || '1.0.0',
+      status: app.status || app.Status || 'Pending'
     });
   };
   
@@ -360,9 +385,9 @@ function AdminDashboard() {
     setEditingApp(null);
     setAppFormData({
       name: "",
-      developerId: "",
+      developerName: "",
+      companyName: "",
       category: "",
-      description: "",
       version: "1.0.0",
       status: "Pending"
     });
@@ -371,20 +396,27 @@ function AdminDashboard() {
   // Update app
   const handleUpdateApp = (id) => {
     // Validate form
-    if (!appFormData.name || !appFormData.developerId || !appFormData.category) {
+    if (!appFormData.name || !appFormData.developerName || !appFormData.category) {
       toast.error("Please fill in all required fields");
       return;
     }
     
-    // Get developer name
-    const developer = developers.find(dev => dev.id === appFormData.developerId);
+    if (!Array.isArray(apps)) {
+      toast.error("Unable to update app: Invalid data structure");
+      return;
+    }
     
     // In real app, this would be an API call
     const updatedApps = apps.map(app => 
-      app.id === id ? { 
+      (app.id === id || app._id === id) ? { 
         ...app, 
-        ...appFormData,
-        developerName: developer ? developer.name : "Unknown Developer"
+        name: appFormData.name,
+        developerName: appFormData.developerName,
+        companyName: appFormData.companyName,
+        category: appFormData.category,
+        version: appFormData.version,
+        status: appFormData.status,
+        description: appFormData.description
       } : app
     );
     
@@ -392,9 +424,9 @@ function AdminDashboard() {
     setEditingApp(null);
     setAppFormData({
       name: "",
-      developerId: "",
+      developerName: "",
+      companyName: "",
       category: "",
-      description: "",
       version: "1.0.0",
       status: "Pending"
     });
@@ -405,73 +437,69 @@ function AdminDashboard() {
   const handleDeleteApp = (id) => {
     if (window.confirm("Are you sure you want to delete this app?")) {
       // In real app, this would be an API call
-      const filteredApps = apps.filter(app => app.id !== id);
+      if (!Array.isArray(apps)) {
+        toast.error("Unable to delete app: Invalid data structure");
+        return;
+      }
+      const filteredApps = apps.filter(app => app.id !== id && app._id !== id);
       setApps(filteredApps);
       toast.success("App deleted successfully");
     }
   };
   
   // Filter apps based on search
-  const filteredApps = apps.filter(app => 
-    app.name.toLowerCase().includes(appSearchQuery.toLowerCase()) ||
-    app.developerName.toLowerCase().includes(appSearchQuery.toLowerCase()) ||
-    app.category.toLowerCase().includes(appSearchQuery.toLowerCase()) ||
-    app.status.toLowerCase().includes(appSearchQuery.toLowerCase())
-  );
+  const filteredApps = Array.isArray(apps) ? apps.filter(app => {
+    if (!app) return false;
+    
+    // Check if properties exist before calling toLowerCase()
+    const name = app.name || app.Name || '';
+    const developerName = app.developerName || app.DeveloperName || '';
+    const category = app.category || app.Category || '';
+    const status = app.status || app.Status || '';
+    
+    return name.toLowerCase().includes(appSearchQuery.toLowerCase()) ||
+           developerName.toLowerCase().includes(appSearchQuery.toLowerCase()) ||
+           category.toLowerCase().includes(appSearchQuery.toLowerCase()) ||
+           status.toLowerCase().includes(appSearchQuery.toLowerCase());
+  }) : [];
 
-  // Mock function to fetch users - would be replaced with API call
+  // Fetch users from API
   const fetchUsers = () => {
     setUsersLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      const mockUsers = [
-        {
-          id: "1",
-          name: "John Doe",
-          email: "john@example.com",
-          role: "User",
-          joinedDate: "Jan 10, 2023",
-          status: "Active",
-          lastLogin: "2 days ago"
-        },
-        {
-          id: "2",
-          name: "Jane Smith",
-          email: "jane@example.com",
-          role: "User",
-          joinedDate: "Feb 15, 2023",
-          status: "Active",
-          lastLogin: "5 hours ago"
-        },
-        {
-          id: "3",
-          name: "Ahmad Khan",
-          email: "ahmad@example.com",
-          role: "Developer",
-          joinedDate: "Mar 22, 2023",
-          status: "Active",
-          lastLogin: "1 week ago"
-        },
-        {
-          id: "4",
-          name: "Sarah Johnson",
-          email: "sarah@example.com",
-          role: "User",
-          joinedDate: "Apr 5, 2023",
-          status: "Suspended",
-          lastLogin: "3 weeks ago"
-        },
-        {
-          id: "5",
-          name: "Admin User",
-          email: "admin@example.com",
-          role: "Admin",
-          joinedDate: "Jan 1, 2023",
-          status: "Active",
-          lastLogin: "Just now"
+    setTimeout(async () => {
+      try {
+        const UsersURL = import.meta.env.VITE_GET_USERS;
+        console.log("Fetching users from:", UsersURL);
+        const response = await api.get(UsersURL);
+        console.log("API Response for users:", response.data);
+        
+        // Check if response data structure is as expected
+        if (response.data && Array.isArray(response.data.data)) {
+          const allUsers = response.data.data;
+          console.log("All users:", allUsers);
+          
+          // Map the API response to match the expected property names
+          const mappedUsers = allUsers.map(user => ({
+            id: user._id || user.id,
+            name: user.Name || user.name || 'Unknown',
+            email: user.Email || user.email || 'No email',
+            role: user.Role || user.role || "User",
+            phone: user.Phone || user.phone || "N/A",
+            joinedDate: user.Joined ? new Date(user.Joined).toLocaleDateString() : "N/A",
+            status: user.AccountStatus || user.status || "Active",
+            lastLogin: user.LastLogin ? new Date(user.LastLogin).toLocaleDateString() : "Never"
+          }));
+          
+          console.log("Mapped users:", mappedUsers);
+          setUsers(mappedUsers);
+        } else {
+          console.error("Invalid response format:", response.data);
+          setUsers([]);
         }
-      ];
-      setUsers(mockUsers);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        setUsers([]);
+      }
       setUsersLoading(false);
     }, 800);
   };
@@ -573,73 +601,63 @@ function AdminDashboard() {
   };
   
   // Filter users based on search
-  const filteredUsers = users.filter(user => 
-    user.name.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
-    user.email.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
-    user.role.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
-    user.status.toLowerCase().includes(userSearchQuery.toLowerCase())
-  );
+  const filteredUsers = Array.isArray(users) ? users.filter(user => {
+    if (!user) return false;
+    
+    // Check if properties exist before calling toLowerCase()
+    const name = user.name || '';
+    const email = user.email || '';
+    const role = user.role || '';
+    const status = user.status || '';
+    
+    return name.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+           email.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+           role.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+           status.toLowerCase().includes(userSearchQuery.toLowerCase());
+  }) : [];
 
-  // Mock function to fetch applicants - would be replaced with API call
+  // Fetch applicants from API
   const fetchApplicants = () => {
     setApplicantsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      const mockApplicants = [
-        {
-          id: "1",
-          name: "David Williams",
-          email: "david@example.com",
-          appliedFor: "Developer",
-          appliedDate: "Feb 12, 2023",
-          status: "Pending Review",
-          experience: "5 years of web development",
-          skills: ["React", "Node.js", "MongoDB"],
-          portfolio: "https://davidwilliams.dev",
-          resume: "resume_david_williams.pdf",
-          coverLetter: "I'm excited to apply for the developer position..."
-        },
-        {
-          id: "2",
-          name: "Emily Johnson",
-          email: "emily@example.com",
-          appliedFor: "UI/UX Designer",
-          appliedDate: "Mar 3, 2023",
-          status: "Interview Scheduled",
-          experience: "3 years in UI/UX design",
-          skills: ["Figma", "Adobe XD", "Sketch"],
-          portfolio: "https://emilyjohnson.design",
-          resume: "resume_emily_johnson.pdf",
-          coverLetter: "As a passionate designer with 3 years of experience..."
-        },
-        {
-          id: "3",
-          name: "Robert Brown",
-          email: "robert@example.com",
-          appliedFor: "Developer",
-          appliedDate: "Jan 25, 2023",
-          status: "Rejected",
-          experience: "2 years of mobile development",
-          skills: ["React Native", "JavaScript", "Firebase"],
-          portfolio: "https://robertbrown.dev",
-          resume: "resume_robert_brown.pdf",
-          coverLetter: "I believe my skills in mobile development make me..."
-        },
-        {
-          id: "4",
-          name: "Sophia Chen",
-          email: "sophia@example.com",
-          appliedFor: "Developer",
-          appliedDate: "Apr 8, 2023",
-          status: "Approved",
-          experience: "7 years in full-stack development",
-          skills: ["Python", "Django", "React", "AWS"],
-          portfolio: "https://sophiachen.dev",
-          resume: "resume_sophia_chen.pdf",
-          coverLetter: "With my extensive experience in full-stack development..."
+    setTimeout(async () => {
+      try {
+        const ApplicantsURL = import.meta.env.VITE_GET_APPLICANTS;
+        console.log("Fetching applicants from:", ApplicantsURL);
+        const response = await api.get(ApplicantsURL);
+        console.log("API Response for applicants:", response.data);
+        
+        // Check if response data structure is as expected
+        if (response.data && Array.isArray(response.data.data)) {
+          const allApplicants = response.data.data;
+          console.log("All applicants:", allApplicants);
+          
+          // Map the API response to match the expected property names
+          const mappedApplicants = allApplicants.map(applicant => ({
+            id: applicant._id || applicant.id,
+            name: applicant.Name || applicant.name || 'Unknown',
+            email: applicant.Email || applicant.email || 'No email',
+            phone: applicant.Phone || applicant.phone || 'N/A',
+            appliedFor: 'Developer', // Default value since it's not in the model
+            appliedDate: applicant.Applied ? new Date(applicant.Applied).toLocaleDateString() : 'N/A',
+            status: 'Pending Review', // Default status
+            bkashTransactionID: applicant.BkashTransactionID || 'N/A',
+            experience: 'Not specified', // Not in the model
+            skills: [], // Not in the model
+            portfolio: 'Not provided', // Not in the model
+            resume: 'Not uploaded', // Not in the model
+            coverLetter: 'Not provided' // Not in the model
+          }));
+          
+          console.log("Mapped applicants:", mappedApplicants);
+          setApplicants(mappedApplicants);
+        } else {
+          console.error("Invalid response format:", response.data);
+          setApplicants([]);
         }
-      ];
-      setApplicants(mockApplicants);
+      } catch (error) {
+        console.error("Error fetching applicants:", error);
+        setApplicants([]);
+      }
       setApplicantsLoading(false);
     }, 800);
   };
@@ -679,11 +697,15 @@ function AdminDashboard() {
   
   // Delete applicant
   const handleDeleteApplicant = (id) => {
-    if (window.confirm("Are you sure you want to delete this application?")) {
+    if (window.confirm("Are you sure you want to delete this applicant?")) {
       // In real app, this would be an API call
-      const filteredApplicants = applicants.filter(applicant => applicant.id !== id);
+      if (!Array.isArray(applicants)) {
+        toast.error("Unable to delete applicant: Invalid data structure");
+        return;
+      }
+      const filteredApplicants = applicants.filter(applicant => applicant.id !== id && applicant._id !== id);
       setApplicants(filteredApplicants);
-      toast.success("Application deleted successfully");
+      toast.success("Applicant deleted successfully");
     }
   };
   
@@ -693,12 +715,20 @@ function AdminDashboard() {
   };
   
   // Filter applicants based on search
-  const filteredApplicants = applicants.filter(applicant => 
-    applicant.name.toLowerCase().includes(applicantSearchQuery.toLowerCase()) ||
-    applicant.email.toLowerCase().includes(applicantSearchQuery.toLowerCase()) ||
-    applicant.appliedFor.toLowerCase().includes(applicantSearchQuery.toLowerCase()) ||
-    applicant.status.toLowerCase().includes(applicantSearchQuery.toLowerCase())
-  );
+  const filteredApplicants = Array.isArray(applicants) ? applicants.filter(applicant => {
+    if (!applicant) return false;
+    
+    // Check if properties exist before calling toLowerCase()
+    const name = applicant.name || '';
+    const email = applicant.email || '';
+    const appliedFor = applicant.appliedFor || '';
+    const status = applicant.status || '';
+    
+    return name.toLowerCase().includes(applicantSearchQuery.toLowerCase()) ||
+           email.toLowerCase().includes(applicantSearchQuery.toLowerCase()) ||
+           appliedFor.toLowerCase().includes(applicantSearchQuery.toLowerCase()) ||
+           status.toLowerCase().includes(applicantSearchQuery.toLowerCase());
+  }) : [];
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[600px] py-12 pt-24 bg-gray-50">
@@ -980,14 +1010,16 @@ function AdminDashboard() {
                                   <div className="flex items-center">
                                     <div className="flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center">
                                       <span className="text-indigo-700 font-medium text-sm">
-                                        {developer.name.split(' ').map(n => n[0]).join('')}
+                                        {developer.name && typeof developer.name === 'string' 
+                                          ? developer.name.split(' ').map(n => n[0]).join('')
+                                          : 'NA'}
                                       </span>
                                     </div>
                                     <div className="ml-4">
-                                      <div className="text-sm font-medium text-gray-900">{developer.name}</div>
+                                      <div className="text-sm font-medium text-gray-900">{developer.name || 'Unknown'}</div>
                                       <div className="text-sm text-gray-500 flex items-center">
                                         <Mail className="h-3 w-3 mr-1" />
-                                        {developer.email}
+                                        {developer.email || 'No email'}
                                       </div>
                                     </div>
                                   </div>
@@ -995,13 +1027,13 @@ function AdminDashboard() {
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <div className="text-sm text-gray-900 flex items-center">
                                     <Phone className="h-3 w-3 mr-1 text-gray-500" />
-                                    {developer.phone}
+                                    {developer.phone || 'N/A'}
                                   </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <div className="text-sm text-gray-900 flex items-center">
                                     <Calendar className="h-3 w-3 mr-1 text-gray-500" />
-                                    {developer.joinedDate}
+                                    {developer.joinedDate || 'N/A'}
                                   </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
@@ -1009,11 +1041,11 @@ function AdminDashboard() {
                                     ${developer.status === 'Active' ? 'bg-green-100 text-green-800' : 
                                       developer.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 
                                       'bg-red-100 text-red-800'}`}>
-                                    {developer.status}
+                                    {developer.status || 'Unknown'}
                                   </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                  {developer.apps}
+                                  {typeof developer.apps === 'number' ? developer.apps : 0}
                                 </td>
                               </>
                             )}
@@ -1139,20 +1171,28 @@ function AdminDashboard() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Developer *
+                        Developer Name *
                       </label>
-                      <select
-                        name="developerId"
-                        value={appFormData.developerId}
+                      <input
+                        type="text"
+                        name="developerName"
+                        value={appFormData.developerName}
                         onChange={handleAppInputChange}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                         required
-                      >
-                        <option value="">Select a developer</option>
-                        {developers.map(dev => (
-                          <option key={dev.id} value={dev.id}>{dev.name}</option>
-                        ))}
-                      </select>
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Company Name
+                      </label>
+                      <input
+                        type="text"
+                        name="companyName"
+                        value={appFormData.companyName}
+                        onChange={handleAppInputChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1170,8 +1210,21 @@ function AdminDashboard() {
                         <option value="Productivity">Productivity</option>
                         <option value="Education">Education</option>
                         <option value="Entertainment">Entertainment</option>
-                        <option value="Utilities">Utilities</option>
+                        <option value="Utility">Utilities</option>
                       </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Version *
+                      </label>
+                      <input
+                        type="text"
+                        name="version"
+                        value={appFormData.version}
+                        onChange={handleAppInputChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        required
+                      />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1190,7 +1243,7 @@ function AdminDashboard() {
                     </div>
                     <div className="md:col-span-2">
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Description *
+                        Description
                       </label>
                       <textarea
                         name="description"
@@ -1198,7 +1251,6 @@ function AdminDashboard() {
                         onChange={handleAppInputChange}
                         rows="3"
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                        required
                       ></textarea>
                     </div>
                     <div className="md:col-span-2 flex justify-end mt-4">
@@ -1266,8 +1318,8 @@ function AdminDashboard() {
                         </tr>
                       ) : (
                         filteredApps.map((app) => (
-                          <tr key={app.id} className="hover:bg-gray-50">
-                            {editingApp === app.id ? (
+                          <tr key={app.id || app._id} className="hover:bg-gray-50">
+                            {editingApp === app.id || editingApp === app._id ? (
                               // Edit mode
                               <td colSpan="5" className="px-6 py-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1286,20 +1338,28 @@ function AdminDashboard() {
                                   </div>
                                   <div>
                                     <label className="block text-xs font-medium text-gray-500 mb-1">
-                                      Developer
+                                      Developer Name
                                     </label>
-                                    <select
-                                      name="developerId"
-                                      value={appFormData.developerId}
+                                    <input
+                                      type="text"
+                                      name="developerName"
+                                      value={appFormData.developerName}
                                       onChange={handleAppInputChange}
                                       className="w-full px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                                       required
-                                    >
-                                      <option value="">Select a developer</option>
-                                      {developers.map(dev => (
-                                        <option key={dev.id} value={dev.id}>{dev.name}</option>
-                                      ))}
-                                    </select>
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">
+                                      Company Name
+                                    </label>
+                                    <input
+                                      type="text"
+                                      name="companyName"
+                                      value={appFormData.companyName}
+                                      onChange={handleAppInputChange}
+                                      className="w-full px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                    />
                                   </div>
                                   <div>
                                     <label className="block text-xs font-medium text-gray-500 mb-1">
@@ -1317,8 +1377,21 @@ function AdminDashboard() {
                                       <option value="Productivity">Productivity</option>
                                       <option value="Education">Education</option>
                                       <option value="Entertainment">Entertainment</option>
-                                      <option value="Utilities">Utilities</option>
+                                      <option value="Utility">Utilities</option>
                                     </select>
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">
+                                      Version
+                                    </label>
+                                    <input
+                                      type="text"
+                                      name="version"
+                                      value={appFormData.version}
+                                      onChange={handleAppInputChange}
+                                      className="w-full px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                      required
+                                    />
                                   </div>
                                   <div>
                                     <label className="block text-xs font-medium text-gray-500 mb-1">
@@ -1344,42 +1417,44 @@ function AdminDashboard() {
                                   <div className="flex items-center">
                                     <div className="flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-lg flex items-center justify-center">
                                       <span className="text-indigo-700 font-medium text-sm">
-                                        {app.name.charAt(0)}
+                                        {(app.name || app.Name || 'A').charAt(0)}
                                       </span>
                                     </div>
                                     <div className="ml-4">
-                                      <div className="text-sm font-medium text-gray-900">{app.name}</div>
+                                      <div className="text-sm font-medium text-gray-900">{app.name || app.Name || 'Unknown'}</div>
                                       <div className="text-sm text-gray-500">
-                                        {app.version}
+                                        {app.version || app.Version || 'N/A'}
                                       </div>
                                     </div>
                                   </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <div className="text-sm text-gray-900">
-                                    {app.developerName}
+                                    {app.developerName || app.DeveloperName || 'Unknown'}
                                   </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <div className="text-sm text-gray-900">
-                                    {app.category}
+                                    {app.category || app.Category || 'N/A'}
                                   </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                    ${app.status === 'Approved' ? 'bg-green-100 text-green-800' : 
-                                      app.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 
+                                    ${(app.status || app.Status) === 'Approved' ? 'bg-green-100 text-green-800' : 
+                                      (app.status || app.Status) === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 
                                       'bg-red-100 text-red-800'}`}>
-                                    {app.status}
+                                    {app.status || app.Status || 'Unknown'}
                                   </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                  {app.downloads.toLocaleString()}
+                                  {typeof (app.downloads || app.Downloads) === 'number' 
+                                    ? (app.downloads || app.Downloads).toLocaleString() 
+                                    : '0'}
                                 </td>
                               </>
                             )}
                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                              {editingApp === app.id ? (
+                              {editingApp === app.id || editingApp === app._id ? (
                                 <div className="flex justify-end space-x-2">
                                   <button
                                     onClick={() => handleUpdateApp(app.id)}
@@ -1403,7 +1478,7 @@ function AdminDashboard() {
                                     <Edit className="h-4 w-4" />
                                   </button>
                                   <button
-                                    onClick={() => handleDeleteApp(app.id)}
+                                    onClick={() => handleDeleteApp(app.id || app._id)}
                                     className="text-red-600 hover:text-red-900 bg-red-50 p-1 rounded"
                                   >
                                     <Trash2 className="h-4 w-4" />
@@ -1865,13 +1940,15 @@ function AdminDashboard() {
                         </tr>
                       ) : (
                         filteredApplicants.map((applicant) => (
-                          <>
-                            <tr key={applicant.id} className="hover:bg-gray-50">
+                          <React.Fragment key={applicant.id || applicant._id}>
+                            <tr className="hover:bg-gray-50">
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="flex items-center">
                                   <div className="flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center">
                                     <span className="text-indigo-700 font-medium text-sm">
-                                      {applicant.name.split(' ').map(n => n[0]).join('')}
+                                      {applicant.name && typeof applicant.name === 'string' 
+                                        ? applicant.name.split(' ').map(n => n[0]).join('') 
+                                        : 'NA'}
                                     </span>
                                   </div>
                                   <div className="ml-4">
@@ -1955,26 +2032,47 @@ function AdminDashboard() {
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
                                       <h4 className="text-sm font-semibold text-gray-900 mb-2">Experience</h4>
-                                      <p className="text-sm text-gray-600">{applicant.experience}</p>
+                                      <p className="text-sm text-gray-600">{applicant.experience || 'Not specified'}</p>
                                       
                                       <h4 className="text-sm font-semibold text-gray-900 mt-4 mb-2">Skills</h4>
                                       <div className="flex flex-wrap gap-1">
-                                        {applicant.skills.map((skill, index) => (
-                                          <span key={index} className="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs rounded-full">
-                                            {skill}
-                                          </span>
-                                        ))}
+                                        {Array.isArray(applicant.skills) && applicant.skills.length > 0 ? (
+                                          applicant.skills.map((skill, index) => (
+                                            <span key={index} className="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs rounded-full">
+                                              {skill}
+                                            </span>
+                                          ))
+                                        ) : (
+                                          <span className="text-sm text-gray-500">No skills listed</span>
+                                        )}
                                       </div>
                                       
+                                      <h4 className="text-sm font-semibold text-gray-900 mt-4 mb-2">Transaction ID</h4>
+                                      <p className="text-sm text-gray-600">{applicant.bkashTransactionID || 'Not available'}</p>
+                                      
                                       <h4 className="text-sm font-semibold text-gray-900 mt-4 mb-2">Portfolio</h4>
-                                      <a href={applicant.portfolio} target="_blank" rel="noopener noreferrer" className="text-sm text-indigo-600 hover:underline">
-                                        {applicant.portfolio}
-                                      </a>
+                                      {applicant.portfolio && applicant.portfolio !== 'Not provided' ? (
+                                        <a href={applicant.portfolio} target="_blank" rel="noopener noreferrer" className="text-sm text-indigo-600 hover:underline">
+                                          {applicant.portfolio}
+                                        </a>
+                                      ) : (
+                                        <p className="text-sm text-gray-500">No portfolio provided</p>
+                                      )}
                                     </div>
                                     
                                     <div>
                                       <h4 className="text-sm font-semibold text-gray-900 mb-2">Cover Letter</h4>
-                                      <p className="text-sm text-gray-600">{applicant.coverLetter.substring(0, 150)}...</p>
+                                      <p className="text-sm text-gray-600">
+                                        {applicant.coverLetter && applicant.coverLetter !== 'Not provided' 
+                                          ? `${applicant.coverLetter.substring(0, 150)}...` 
+                                          : 'No cover letter provided'}
+                                      </p>
+                                      
+                                      <h4 className="text-sm font-semibold text-gray-900 mt-4 mb-2">Contact Information</h4>
+                                      <p className="text-sm text-gray-600">
+                                        <strong>Email:</strong> {applicant.email}<br />
+                                        <strong>Phone:</strong> {applicant.phone || 'Not provided'}
+                                      </p>
                                       
                                       <div className="mt-4 flex space-x-2">
                                         <button className="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs rounded-md hover:bg-indigo-200 flex items-center">
@@ -1991,7 +2089,7 @@ function AdminDashboard() {
                                 </td>
                               </tr>
                             )}
-                          </>
+                          </React.Fragment>
                         ))
                       )}
                     </tbody>

@@ -16,7 +16,8 @@ const Navbar = ({ User: CurrentUser, Logout }) => {
   const isAdminPage = location.pathname === "/admin";
   const isProfilePage = location.pathname === "/profile";
   const isSettingsPage = location.pathname === "/settings";
-  const hideSearchPaths = isAdminPage || isProfilePage || isSettingsPage;
+  const isLoginPage = location.pathname === "/login";
+  const hideSearchPaths = isAdminPage || isProfilePage || isSettingsPage || isLoginPage;
 
   const toggleDropdown = () => setDropdownOpen((prev) => !prev);
   const toggleSearch = () => setShowSearch((prev) => !prev);

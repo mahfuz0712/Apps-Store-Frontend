@@ -11,11 +11,8 @@ const Footer = () => {
           {/* Logo and About */}
           <div className="col-span-1 md:col-span-1">
             <div className="text-xl font-semibold mb-4 flex items-center">
-              <span className="bg-white text-indigo-800 w-8 h-8 rounded-full flex items-center justify-center mr-2">
-                M
-              </span>
               <span>
-                Mahfuz<span className="font-light text-sm">'s Apps</span>
+                Mahfuz<span className="font-light text-sm">'s Apps Store</span>
               </span>
             </div>
             <p className="text-indigo-100 text-sm mb-4">
@@ -52,8 +49,8 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/application" className="hover:text-white transition-colors inline-block hover:translate-x-1 transform duration-200">
-                  Developer Application
+                <Link to="https://github.com/mahfuz0712" target="_blank" className="hover:text-white transition-colors inline-block hover:translate-x-1 transform duration-200">
+                  Developer
                 </Link>
               </li>
               <li>
@@ -69,22 +66,22 @@ const Footer = () => {
             <h3 className="text-lg font-medium mb-4 text-white/90">Resources</h3>
             <ul className="space-y-2 text-indigo-200 text-sm">
               <li>
-                <Link to="#" className="hover:text-white transition-colors inline-block hover:translate-x-1 transform duration-200">
+                <Link to="/docs" className="hover:text-white transition-colors inline-block hover:translate-x-1 transform duration-200">
                   Documentation
                 </Link>
               </li>
               <li>
-                <Link to="#" className="hover:text-white transition-colors inline-block hover:translate-x-1 transform duration-200">
+                <Link to="/api" className="hover:text-white transition-colors inline-block hover:translate-x-1 transform duration-200">
                   API
                 </Link>
               </li>
               <li>
-                <Link to="#" className="hover:text-white transition-colors inline-block hover:translate-x-1 transform duration-200">
+                <Link to="/support" className="hover:text-white transition-colors inline-block hover:translate-x-1 transform duration-200">
                   Support
                 </Link>
               </li>
               <li>
-                <Link to="#" className="hover:text-white transition-colors inline-block hover:translate-x-1 transform duration-200">
+                <Link to="/privacy" className="hover:text-white transition-colors inline-block hover:translate-x-1 transform duration-200">
                   Terms & Conditions
                 </Link>
               </li>
@@ -97,12 +94,12 @@ const Footer = () => {
             <ul className="space-y-2 text-indigo-200 text-sm">
               <li className="flex items-start">
                 <span className="text-white/70 mr-2">Email:</span>
-                <a href="mailto:contact@mahfuzapps.com" className="hover:text-white transition-colors">
-                  contact@mahfuzapps.com
+                <a href="mailto:mahfuzrahman0712@gmail.com" className="hover:text-white transition-colors">
+                  mahfuzrahman0712@gmail.com
                 </a>
               </li>
               <li className="flex items-start">
-                <span className="text-white/70 mr-2">Phone:</span>
+                <span className="text-white/70 mr-2">Contact:</span>
                 <a href="tel:01876891680" className="hover:text-white transition-colors">
                   01876891680
                 </a>

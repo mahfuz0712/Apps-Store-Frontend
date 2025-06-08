@@ -86,8 +86,6 @@ const Login = () => {
             Password: passwordForLogin,
           });
 
-
-          
           // Check if the response was successful
           if (response.data && response.data.success) {
             // The actual user data is in the 'data' property of the response
@@ -100,11 +98,10 @@ const Login = () => {
                   Role: userData.Role,
                 })
               );
-              
+
               // Try to get role with both lowercase and uppercase first letter
               const userRole = userData.Role || userData.role;
-              
-              
+
               if (userRole === "Admin" || userRole === "admin") {
                 sessionStorage.setItem("isAdmin", true);
                 sessionStorage.setItem("isLoggedIn", true);
@@ -197,7 +194,21 @@ const Login = () => {
     setLoading(true);
     try {
       // Implement your developer application logic here
-
+      const CreateApplicantURl = import.meta.env.VITE_CREATE_APPLICANT;
+      const response = await api.post(CreateApplicantURl, {
+        Name: fullName,
+        Email: devEmail,
+        Phone: devPhone,
+        BkashTransactionID: transactionID,
+        Applied: new Date(),
+      });
+      if (!response.data.success) {
+        return swal({
+          title: "Application failed",
+          text: response.data.message,
+          icon: "error",
+        });
+      }
       // Show success message with SweetAlert
       swal({
         title: "Application Submitted!",
@@ -231,9 +242,9 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 pt-20 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8">
+      <div className="w-full max-w-md space-y-2">
         <div className="text-center">
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-2 text-3xl font-extrabold text-gray-900">
             Welcome back
           </h2>
           <p className="mt-2 text-sm text-gray-600">
