@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
-
+import { api } from "../apis/v1/v1";
+import swal from "sweetalert";
 const OTPVerification = () => {
   const [OTP, setOTP] = useState("");
   const [error, setError] = useState("");
@@ -9,22 +9,18 @@ const OTPVerification = () => {
   const [remainingTime, setRemainingTime] = useState(120); // 2 minutes in seconds
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   // Get email from URL query params or session storage
   const queryParams = new URLSearchParams(location.search);
   const emailFromQuery = queryParams.get("email");
-  
-  const Name = sessionStorage.getItem("NameForSignUp");
   const Email = emailFromQuery || sessionStorage.getItem("EmailForSignUp");
-  const Phone = sessionStorage.getItem("PhoneForSignUp");
-  const Password = sessionStorage.getItem("PasswordForSignUp");
 
   // Timer to unset session variables and navigate to /login after 2 minutes
   useEffect(() => {
     const timer = setTimeout(() => {
       sessionStorage.clear();
       navigate("/login");
-    }, 2 * 60 * 1000); // 2 minutes in milliseconds
+    }, 1 * 60 * 1000); // 1 minutes in milliseconds
 
     // Cleanup the timer when the component unmounts
     return () => clearTimeout(timer);
@@ -50,27 +46,34 @@ const OTPVerification = () => {
       setError("Email and OTP are required");
       return;
     }
+
     try {
-      const postData = {
-        Name: Name,
-        Email: Email,
-        Phone: Phone,
-        Password: Password,
-        OTP: OTP,
-      };
-      const registerURL = import.meta.env.VITE_REGISTER;
+      const TestUsersURL = import.meta.env.VITE_TEST_USERS;
       setLoading(true);
-      const response = await axios.post(registerURL, postData);
+      const response = await api.post(TestUsersURL, {
+        Email: Email,
+        OTP: OTP,
+      });
       setLoading(false);
-      if (response.data.success) {
-        console.log(response.data.message);
-        navigate("/login");
+      if (response.data?.success) {
+        swal({
+          title: "Congratulations",
+          text: response.data.message,
+          icon: "success",
+          button: {
+            text: "ok",
+            onClick: navigate("/login"),
+          },
+        });
       } else {
         setError(response.data.message);
       }
     } catch (error) {
       setLoading(false);
-      setError("Error verifying OTP: " + (error.response ? error.response.data : error.message));
+      setError(
+        "Error verifying OTP: " +
+          (error.response ? error.response.data : error.message)
+      );
     }
   };
 
@@ -84,15 +87,17 @@ const OTPVerification = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 pt-20 pb-10">
       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Verify OTP</h2>
-        
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
+          Verify OTP
+        </h2>
+
         <div className="text-center mb-6">
           <p className="text-gray-600">
-            {Name ? `Hi ${Name},` : 'Hi,'} <br />
+            <br />
             an OTP was sent to <span className="font-medium">{Email}</span>
           </p>
         </div>
-        
+
         <div className="mb-6">
           <input
             type="text"
@@ -103,23 +108,25 @@ const OTPVerification = () => {
             maxLength={6}
           />
         </div>
-        
-                  <button 
-            onClick={handleVerifyAndRegister} 
-            disabled={loading || remainingTime === 0}
-            className="w-full py-3 px-4 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-sm font-medium rounded-xl transition-all shadow-sm hover:shadow disabled:bg-gray-400 disabled:from-gray-400 disabled:to-gray-500 mb-4"
-          >
-            {loading ? "Verifying..." : "Verify OTP"}
-          </button>
-        
+
+        <button
+          onClick={handleVerifyAndRegister}
+          disabled={loading || remainingTime === 0}
+          className="w-full py-3 px-4 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-sm font-medium rounded-xl transition-all shadow-sm hover:shadow disabled:bg-gray-400 disabled:from-gray-400 disabled:to-gray-500 mb-4"
+        >
+          {loading ? "Verifying..." : "Verify OTP"}
+        </button>
+
         <div className="text-center">
-          <p className={`font-medium ${remainingTime < 30 ? 'text-red-500' : 'text-gray-600'}`}>
+          <p
+            className={`font-medium ${
+              remainingTime < 30 ? "text-red-500" : "text-gray-600"
+            }`}
+          >
             Time remaining: {formatTime(remainingTime)}
           </p>
-          
-          {error && (
-            <p className="mt-4 text-red-500">{error}</p>
-          )}
+
+          {error && <p className="mt-4 text-red-500">{error}</p>}
         </div>
       </div>
     </div>
