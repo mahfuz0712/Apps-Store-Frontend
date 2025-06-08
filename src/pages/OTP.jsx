@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import "../styles/OTP.css";
 
 const OTPVerification = () => {
   const [OTP, setOTP] = useState("");
@@ -9,8 +8,14 @@ const OTPVerification = () => {
   const [loading, setLoading] = useState(false);
   const [remainingTime, setRemainingTime] = useState(120); // 2 minutes in seconds
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Get email from URL query params or session storage
+  const queryParams = new URLSearchParams(location.search);
+  const emailFromQuery = queryParams.get("email");
+  
   const Name = sessionStorage.getItem("NameForSignUp");
-  const Email = sessionStorage.getItem("EmailForSignUp");
+  const Email = emailFromQuery || sessionStorage.getItem("EmailForSignUp");
   const Phone = sessionStorage.getItem("PhoneForSignUp");
   const Password = sessionStorage.getItem("PasswordForSignUp");
 
@@ -41,8 +46,8 @@ const OTPVerification = () => {
   }, []);
 
   const handleVerifyAndRegister = async () => {
-    if (!Name || !Email || !Phone || !Password || !OTP) {
-      setError("All fields are required");
+    if (!Email || !OTP) {
+      setError("Email and OTP are required");
       return;
     }
     try {
@@ -77,22 +82,45 @@ const OTPVerification = () => {
   };
 
   return (
-    <div>
-      <div className="otp-container">
-        <h2>Verify OTP</h2>
-        <p className="otp-owner-info">Hi {Name} <br />an OTP was sent to {Email}</p>
-        <input
-          type="text"
-          className="otp-input"
-          value={OTP}
-          onChange={(e) => setOTP(e.target.value)}
-          placeholder="Enter OTP"
-        />
-        <button className="otp-button" onClick={handleVerifyAndRegister} disabled={loading}>
-          {loading ? "Verifying..." : "Verify OTP"}
-        </button>
-        <p className="timer-message">Time remaining: {formatTime(remainingTime)}</p>
-        {error && <p className="error-message">{error}</p>}
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 pt-20 pb-10">
+      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl">
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Verify OTP</h2>
+        
+        <div className="text-center mb-6">
+          <p className="text-gray-600">
+            {Name ? `Hi ${Name},` : 'Hi,'} <br />
+            an OTP was sent to <span className="font-medium">{Email}</span>
+          </p>
+        </div>
+        
+        <div className="mb-6">
+          <input
+            type="text"
+            value={OTP}
+            onChange={(e) => setOTP(e.target.value)}
+            placeholder="Enter OTP"
+            className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-center text-xl tracking-wider"
+            maxLength={6}
+          />
+        </div>
+        
+                  <button 
+            onClick={handleVerifyAndRegister} 
+            disabled={loading || remainingTime === 0}
+            className="w-full py-3 px-4 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-sm font-medium rounded-xl transition-all shadow-sm hover:shadow disabled:bg-gray-400 disabled:from-gray-400 disabled:to-gray-500 mb-4"
+          >
+            {loading ? "Verifying..." : "Verify OTP"}
+          </button>
+        
+        <div className="text-center">
+          <p className={`font-medium ${remainingTime < 30 ? 'text-red-500' : 'text-gray-600'}`}>
+            Time remaining: {formatTime(remainingTime)}
+          </p>
+          
+          {error && (
+            <p className="mt-4 text-red-500">{error}</p>
+          )}
+        </div>
       </div>
     </div>
   );

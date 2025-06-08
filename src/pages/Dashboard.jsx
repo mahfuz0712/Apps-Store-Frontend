@@ -1,64 +1,285 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import {UpdateChecker} from "mahfuz-js-frontend";
 import axios from "axios";
-
+import { Star, Download, ChevronRight } from "lucide-react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [apps, setApps] = useState([]);
+  const [featuredApps, setFeaturedApps] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filteredApps, setFilteredApps] = useState([]);
+
   useEffect(() => {
-    const fetchApps = async () => {
-      const appsFromDatabase = import.meta.env.VITE_APPS;
+    const fetchData = async () => {
+      setLoading(true);
+      const appsEndpoint = import.meta.env.VITE_GET_APPS;
+      const categoriesEndpoint = import.meta.env.VITE_CATEGORIES;
+      
       try {
-        const response = await axios.get(appsFromDatabase);
-        setApps(response.data);
-        // const data = [
-        //   { id: 1, name: "App 1", description: "This is app1" },
-        //   { id: 1, name: "App 1", description: "This is app1" }
-        // ]
-        // setApps(data);
+        // Fetch apps
+        const appsResponse = await axios.get(appsEndpoint);
+        const appsData = appsResponse.data.data.appsList;
+        setApps(appsData);
+        setFilteredApps(appsData);
+        
+        // Set featured apps (top 6 based on category or random)
+        // Since we don't have rating data, we'll select featured apps by category
+        const categorizedApps = {};
+        appsData.forEach(app => {
+          if (app.Category) {
+            if (!categorizedApps[app.Category]) {
+              categorizedApps[app.Category] = [];
+            }
+            categorizedApps[app.Category].push(app);
+          }
+        });
+
+        // Take one app from each category to feature
+        let featured = [];
+        Object.values(categorizedApps).forEach(apps => {
+          if (apps.length > 0) {
+            featured.push(apps[0]);
+          }
+        });
+
+        // If we don't have enough, add some random apps
+        if (featured.length < 6) {
+          const remainingApps = appsData
+            .filter(app => !featured.includes(app))
+            .sort(() => 0.5 - Math.random())
+            .slice(0, 6 - featured.length);
+          
+          featured = [...featured, ...remainingApps];
+        }
+
+        // Limit to 6 apps
+        featured = featured.slice(0, 6);
+        setFeaturedApps(featured);
+        
+        // Fetch categories or use default categories
+        try {
+          const categoriesResponse = await axios.get(categoriesEndpoint);
+          // Make sure categoriesResponse.data is an array
+          const categoriesData = Array.isArray(categoriesResponse.data) 
+            ? categoriesResponse.data 
+            : categoriesResponse.data?.data?.categories || [];
+            
+          setCategories(categoriesData);
+        } catch (error) {
+          console.error("Error fetching categories:", error);
+          // Default categories as fallback
+          setCategories([
+            { id: 1, Name: "Games", Logo: "🎮" },
+            { id: 2, Name: "Productivity", Logo: "📊" },
+            { id: 3, Name: "Education", Logo: "📚" },
+            { id: 4, Name: "Entertainment", Logo: "🎬" },
+            { id: 5, Name: "Utilities", Logo: "🔧" },
+          ]);
+        }
       } catch (error) {
-        console.error("Error fetching app data:", error);
+        console.error("Error fetching data:", error);
+        // Fallback data for development
+        setCategories([
+          { id: 1, Name: "Games", Logo: "🎮" },
+          { id: 2, Name: "Productivity", Logo: "📊" },
+          { id: 3, Name: "Education", Logo: "📚" },
+          { id: 4, Name: "Entertainment", Logo: "🎬" },
+          { id: 5, Name: "Utilities", Logo: "🔧" },
+        ]);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchApps();
+    fetchData();
   }, []);
-
-  const Logout = () => {
-    sessionStorage.clear();
-    localStorage.removeItem("user");
-    navigate("/login");
+  
+  // Helper function to get a placeholder image if Logo is invalid
+  const getImageUrl = (logo) => {
+    if (!logo || logo === "jj") {
+      return "https://via.placeholder.com/400?text=App";
+    }
+    return logo;
   };
 
-return (
-  <div className="p-6">
-    <section id="featured" className="mb-8">
-      <h2 className="text-xl font-semibold mb-4">Top Apps</h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4" id="app-grid">
-        {apps.map((app, index) => (
-          <div key={index} className="flex flex-col items-center bg-white rounded-lg p-4 shadow-md">
-            <Link to={`/app-details/${app.name}`}>
-              <img
-                src={app.logo}
-                alt={app.name}
-                className="w-24 h-24 object-cover rounded-lg mb-2"
-              />
-            </Link>
-            <h3 className="text-sm font-semibold text-center">{app.name}</h3>
-            <button
-              className="bg-green-500 text-white rounded-md px-2 py-1 text-sm hover:bg-green-700 mt-2"
-              onClick={() => navigate(`/app-details/${app.name}`)}
-            >
-              Download
-            </button>
-          </div>
-        ))}
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-20">
+      {/* Hero Banner */}
+      <div className="relative rounded-2xl bg-gradient-to-r from-indigo-600 to-blue-700 overflow-hidden mb-10 shadow-xl">
+        <div className="absolute inset-0 opacity-20 bg-pattern"></div>
+        <div className="absolute inset-0 bg-grid-white/[0.05]"></div>
+        <div className="relative z-10 px-6 py-12 md:py-16 md:px-12">
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-4 drop-shadow-md">
+            Welcome to Mahfuz's Apps Store
+          </h1>
+          <p className="text-white/90 text-lg md:text-xl max-w-2xl mb-8">
+            Discover the best apps and games developed by our community of talented developers.
+          </p>
+        </div>
       </div>
-    </section>
-  </div>
-);
+      
+      {/* Categories */}
+      <section className="mb-12">
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex items-center">
+            <div className="w-1 h-6 bg-indigo-600 rounded-full mr-3"></div>
+            <h2 className="text-2xl font-bold text-gray-900">Categories</h2>
+          </div>
+          <Link 
+            to="/categories" 
+            className="text-indigo-600 hover:text-indigo-800 flex items-center text-sm font-medium bg-indigo-50 px-3 py-1 rounded-full hover:bg-indigo-100 transition-colors"
+          >
+            View All <ChevronRight className="h-4 w-4 ml-1" />
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+          {Array.isArray(categories) && categories.length > 0 ? (
+            categories.map(category => (
+              <Link 
+                key={category.id || category._id}
+                to={`/category/${category.id || category._id}`}
+                className="flex flex-col items-center justify-center p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group"
+              >
+                <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform duration-300">{category.Logo}</div>
+                <span className="font-medium text-gray-800 group-hover:text-indigo-600 transition-colors">{category.Name}</span>
+                <span className="text-xs text-gray-500 mt-1">
+                  {apps.filter(app => app.Category === category.Name).length || 0} apps
+                </span>
+              </Link>
+            ))
+          ) : (
+            <div className="col-span-5 text-center py-6 bg-white rounded-xl">
+              <p className="text-gray-500">No categories available</p>
+            </div>
+          )}
+        </div>
+      </section>
+      
+      {/* Featured Apps */}
+      <section className="mb-12">
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex items-center">
+            <div className="w-1 h-6 bg-indigo-600 rounded-full mr-3"></div>
+            <h2 className="text-2xl font-bold text-gray-900">Featured Apps</h2>
+          </div>
+          <Link 
+            to="/apps/featured" 
+            className="text-indigo-600 hover:text-indigo-800 flex items-center text-sm font-medium bg-indigo-50 px-3 py-1 rounded-full hover:bg-indigo-100 transition-colors"
+          >
+            View All <ChevronRight className="h-4 w-4 ml-1" />
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+          {featuredApps.map(app => (
+            <div key={app._id} className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 overflow-hidden group">
+              <Link to={`/app/${app._id}`} className="block">
+                <div className="relative">
+                  <img
+                    src={getImageUrl(app.Logo)}
+                    alt={app.Name}
+                    className="w-full aspect-square object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm text-xs font-medium text-gray-800 px-2 py-1 rounded-full shadow-sm flex items-center">
+                    <Star className="h-3 w-3 text-yellow-500 mr-1" fill="currentColor" />
+                    <span>{app.Reviews?.length > 0 
+                      ? (app.Reviews.reduce((sum, review) => sum + review.Rating, 0) / app.Reviews.length).toFixed(1) 
+                      : "N/A"}</span>
+                  </div>
+                </div>
+                <div className="p-4">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-1 truncate">{app.Name}</h3>
+                  <div className="flex items-center text-xs text-gray-500 mb-3">
+                    <span>{app.Developer || "Unknown Developer"}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                      <span>{app.Category || "Uncategorized"}</span>
+                    </div>
+                    <div className="flex items-center text-xs text-gray-500">
+                      <Download className="h-3 w-3 mr-1" />
+                      <span>{app.Downloads > 999 ? `${(app.Downloads/1000).toFixed(1)}K` : app.Downloads || 0}</span>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+              <div className="px-4 pb-4">
+                <button
+                  onClick={() => navigate(`/app/${app._id}`)}
+                  className="w-full py-2 bg-gradient-to-r from-indigo-600 to-blue-700 hover:from-indigo-700 hover:to-blue-800 text-white text-sm font-medium rounded-lg transition-all shadow-sm hover:shadow"
+                >
+                  Download
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+      
+      {/* All Apps */}
+      <section>
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex items-center">
+            <div className="w-1 h-6 bg-blue-600 rounded-full mr-3"></div>
+            <h2 className="text-2xl font-bold text-gray-900">All Apps</h2>
+          </div>
+        </div>
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading apps...</p>
+          </div>
+        ) : filteredApps.length === 0 ? (
+          <div className="text-center py-12 bg-white rounded-xl shadow-sm">
+            <p className="text-gray-500">No apps available at this time.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+            {filteredApps.map(app => (
+              <div key={app._id} className="bg-white rounded-xl shadow-sm hover:shadow-md transition overflow-hidden">
+                <Link to={`/app/${app._id}`}>
+                  <img
+                    src={getImageUrl(app.Logo)}
+                    alt={app.Name}
+                    className="w-full aspect-square object-cover"
+                  />
+                  <div className="p-4">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-1 truncate">{app.Name}</h3>
+                    <div className="flex items-center text-xs text-gray-500 mb-2">
+                      <span>{app.Developer || "Unknown Developer"}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center">
+                        <Star className="h-3 w-3 text-yellow-500 mr-1" fill="currentColor" />
+                        <span className="text-xs font-medium">
+                          {app.Reviews?.length > 0 
+                            ? (app.Reviews.reduce((sum, review) => sum + review.Rating, 0) / app.Reviews.length).toFixed(1) 
+                            : "N/A"}
+                        </span>
+                      </div>
+                      <div className="flex items-center text-xs text-gray-500">
+                        <Download className="h-3 w-3 mr-1" />
+                        <span>{app.Downloads > 999 ? `${(app.Downloads/1000).toFixed(1)}K` : app.Downloads || 0}</span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+                <div className="px-4 pb-4">
+                  <button
+                    onClick={() => navigate(`/app/${app._id}`)}
+                    className="w-full py-2 bg-gradient-to-r from-indigo-600 to-blue-700 hover:from-indigo-700 hover:to-blue-800 text-white text-sm font-medium rounded-lg transition-all shadow-sm hover:shadow"
+                  >
+                    Download
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+    </div>
+  );
 };
 
-export default Dashboard;
+export default Dashboard; 

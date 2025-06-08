@@ -19,13 +19,13 @@ function AdminDashboard() {
       <div className="mt-8">
         <button
           onClick={handleManageUsers}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-medium py-2 px-4 rounded-lg transition-all shadow-sm hover:shadow"
         >
           Manage Developers
         </button>
         <button
           onClick={handleManageApps}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-4"
+          className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-medium py-2 px-4 rounded-lg transition-all shadow-sm hover:shadow ml-4"
         >
           Manage Apps
         </button>

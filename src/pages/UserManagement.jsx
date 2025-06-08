@@ -108,7 +108,7 @@ function UserManagement() {
         />
         <button
           onClick={() => setShowAddModal(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-4 py-2 rounded-lg transition-all shadow-sm hover:shadow"
         >
           Add User
         </button>
@@ -132,7 +132,7 @@ function UserManagement() {
                 <td className="px-4 py-2">{user.Role}</td>
                 <td className="px-4 py-2">
                   <button
-                    className="text-blue-600 hover:underline mr-2"
+                    className="text-green-600 hover:underline mr-2"
                     onClick={() => openEditModal(user)}
                   >
                     Edit
@@ -154,7 +154,7 @@ function UserManagement() {
             onClick={() => setCurrentPage(idx + 1)}
             className={`px-3 py-1 rounded border ${
               currentPage === idx + 1
-                ? "bg-blue-600 text-white"
+                ? "bg-green-600 text-white"
                 : "bg-white text-gray-700"
             }`}
           >
@@ -164,8 +164,8 @@ function UserManagement() {
       </div>
 
       {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow-xl w-full max-w-md">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-3xl">
             <h3 className="text-xl font-bold mb-4">Add User</h3>
             <input
               name="Name"
@@ -207,13 +207,13 @@ function UserManagement() {
             <div className="flex justify-end space-x-2">
               <button
                 onClick={handleAddUserSubmit}
-                className="bg-blue-600 text-white px-4 py-2 rounded"
+                className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-4 py-2 rounded-lg transition-all shadow-sm hover:shadow"
               >
                 Submit
               </button>
               <button
                 onClick={() => setShowAddModal(false)}
-                className="bg-gray-500 text-white px-4 py-2 rounded"
+                className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition-all hover:bg-gray-400"
               >
                 Cancel
               </button>
@@ -223,15 +223,15 @@ function UserManagement() {
       )}
 
       {showEditModal && editUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow-xl w-full max-w-md">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-3xl">
             <h3 className="text-xl font-bold mb-4">Edit User</h3>
             <p>Name: {editUser.Name}</p>
             <p>Email: {editUser.Email}</p>
             <p>Role: {editUser.Role}</p>
             <button
               onClick={() => setShowEditModal(false)}
-              className="mt-4 bg-gray-500 text-white px-4 py-2 rounded"
+              className="mt-4 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-4 py-2 rounded-lg transition-all shadow-sm hover:shadow"
             >
               Close
             </button>
