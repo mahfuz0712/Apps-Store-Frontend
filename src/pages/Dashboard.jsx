@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
-import { Star, Download, ChevronRight } from "lucide-react";
+import { Star, Download, ChevronRight, ChevronLeft } from "lucide-react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -10,6 +10,10 @@ const Dashboard = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filteredApps, setFilteredApps] = useState([]);
+  const [categorizedApps, setCategorizedApps] = useState({});
+  // Track scroll position for each category
+  const [scrollPositions, setScrollPositions] = useState({});
+  const categoryRowRefs = useRef({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,19 +30,22 @@ const Dashboard = () => {
         
         // Set featured apps (top 6 based on category or random)
         // Since we don't have rating data, we'll select featured apps by category
-        const categorizedApps = {};
+        const appsByCategory = {};
         appsData.forEach(app => {
           if (app.Category) {
-            if (!categorizedApps[app.Category]) {
-              categorizedApps[app.Category] = [];
+            if (!appsByCategory[app.Category]) {
+              appsByCategory[app.Category] = [];
             }
-            categorizedApps[app.Category].push(app);
+            appsByCategory[app.Category].push(app);
           }
         });
 
+        console.log("Categorized apps:", appsByCategory);
+        setCategorizedApps(appsByCategory);
+
         // Take one app from each category to feature
         let featured = [];
-        Object.values(categorizedApps).forEach(apps => {
+        Object.values(appsByCategory).forEach(apps => {
           if (apps.length > 0) {
             featured.push(apps[0]);
           }
@@ -102,6 +109,15 @@ const Dashboard = () => {
       return "https://via.placeholder.com/400?text=App";
     }
     return logo;
+  };
+
+  // Handle horizontal scrolling for category rows
+  const scrollRow = (categoryName, direction) => {
+    const rowElement = categoryRowRefs.current[categoryName];
+    if (rowElement) {
+      const scrollAmount = direction === 'left' ? -300 : 300;
+      rowElement.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
   };
 
   return (
@@ -216,6 +232,107 @@ const Dashboard = () => {
           ))}
         </div>
       </section>
+      
+      {/* Apps by Categories */}
+      {loading ? (
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading apps...</p>
+        </div>
+      ) : (
+        <>
+          {Object.keys(categorizedApps).length > 0 ? (
+            Object.entries(categorizedApps).map(([categoryName, categoryApps]) => (
+              categoryApps.length > 0 && (
+                <section key={categoryName} className="mb-12">
+                  <div className="mb-6">
+                    <div className="flex justify-between items-center mb-2">
+                      <div className="flex items-center">
+                        <div className="w-1 h-6 bg-indigo-600 rounded-full mr-3"></div>
+                        <h2 className="text-2xl font-bold text-gray-900">{categoryName}</h2>
+                      </div>
+                      <Link 
+                        to={`/category/${categories.find(cat => cat.Name === categoryName)?.id || ''}`}
+                        className="text-indigo-600 hover:text-indigo-800 flex items-center text-sm font-medium bg-indigo-50 px-3 py-1 rounded-full hover:bg-indigo-100 transition-colors ml-2"
+                      >
+                        View All <ChevronRight className="h-4 w-4 ml-1" />
+                      </Link>
+                    </div>
+                    
+                    <div className="relative group">
+                      <button 
+                        onClick={() => scrollRow(categoryName, 'left')}
+                        className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-indigo-100 p-3 rounded-full shadow-md hover:bg-indigo-200 transition-colors border border-indigo-300 flex items-center justify-center opacity-0 group-hover:opacity-100 hidden md:flex"
+                        style={{ left: "-18px" }}
+                        aria-label="Scroll left"
+                      >
+                        <ChevronLeft className="h-6 w-6 text-indigo-700" />
+                      </button>
+                      
+                      <div 
+                        ref={el => categoryRowRefs.current[categoryName] = el}
+                        className="flex overflow-x-auto pb-4 hide-scrollbar gap-4 px-2"
+                        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                      >
+                        {categoryApps.map(app => (
+                          <div 
+                            key={app._id} 
+                            className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all overflow-hidden min-w-[200px] max-w-[200px] flex-shrink-0"
+                          >
+                            <Link to={`/app/${app._id}`} className="block">
+                              <div className="relative">
+                                <img
+                                  src={getImageUrl(app.Logo)}
+                                  alt={app.Name}
+                                  className="w-full aspect-square object-cover"
+                                />
+                                <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm text-xs font-medium text-gray-800 px-2 py-1 rounded-full shadow-sm flex items-center">
+                                  <Star className="h-3 w-3 text-yellow-500 mr-1" fill="currentColor" />
+                                  <span>{app.Reviews?.length > 0 
+                                    ? (app.Reviews.reduce((sum, review) => sum + review.Rating, 0) / app.Reviews.length).toFixed(1) 
+                                    : "N/A"}</span>
+                                </div>
+                              </div>
+                              <div className="p-4">
+                                <h3 className="text-sm font-semibold text-gray-900 mb-1 truncate">{app.Name}</h3>
+                                <div className="flex items-center text-xs text-gray-500 mb-2">
+                                  <span>{app.Developer || "Unknown Developer"}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <div className="flex items-center">
+                                    <Download className="h-3 w-3 text-gray-500 mr-1" />
+                                    <span className="text-xs text-gray-500">
+                                      {app.Downloads > 999 ? `${(app.Downloads/1000).toFixed(1)}K` : app.Downloads || 0}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </Link>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      <button 
+                        onClick={() => scrollRow(categoryName, 'right')}
+                        className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-indigo-100 p-3 rounded-full shadow-md hover:bg-indigo-200 transition-colors border border-indigo-300 flex items-center justify-center opacity-0 group-hover:opacity-100 hidden md:flex"
+                        style={{ right: "-18px" }}
+                        aria-label="Scroll right"
+                      >
+                        <ChevronRight className="h-6 w-6 text-indigo-700" />
+                      </button>
+                    </div>
+                  </div>
+                </section>
+              )
+            ))
+          ) : (
+            <div className="text-center py-6 bg-white rounded-xl mb-12">
+              <p className="text-gray-500">No categorized apps available</p>
+              <p className="text-xs text-gray-400 mt-2">Debug info: {JSON.stringify(Object.keys(categorizedApps))}</p>
+            </div>
+          )}
+        </>
+      )}
       
       {/* All Apps */}
       <section>

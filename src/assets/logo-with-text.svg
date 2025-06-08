@@ -1,0 +1,22 @@
+<svg width="300" height="100" viewBox="0 0 300 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="primaryGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#4F46E5" />
+      <stop offset="100%" stopColor="#1D4ED8" />
+    </linearGradient>
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stopColor="#4F46E5" />
+      <stop offset="100%" stopColor="#1D4ED8" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" floodOpacity="0.2" />
+    </filter>
+  </defs>
+
+  <circle cx="50" cy="50" r="40" fill="url(#primaryGradient)" filter="url(#shadow)" />
+  <path d="M50 20 L67.5 70 L60 70 L55 55 L45 55 L40 70 L32.5 70 Z" fill="white" />
+  <path d="M46 48 L54 48 L50 35 Z" fill="white" opacity="0.6" />
+
+  <text x="110" y="45" font-family="Arial, sans-serif" font-weight="bold" font-size="24" fill="url(#textGradient)" filter="url(#shadow)">Mahfuz's</text>
+  <text x="110" y="75" font-family="Arial, sans-serif" font-weight="bold" font-size="32" fill="url(#textGradient)" filter="url(#shadow)">App Store</text>
+</svg> 

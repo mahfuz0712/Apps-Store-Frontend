@@ -18,11 +18,11 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 
 function App() {
-  const user = JSON.parse(localStorage.getItem("user")) || null;
+  const User = JSON.parse(localStorage.getItem("User")) || null;
   
   const handleLogout = () => {
     sessionStorage.clear();
-    localStorage.removeItem("user");
+    localStorage.removeItem("User");
     window.location.href = "/login";
   };
 
@@ -31,7 +31,7 @@ function App() {
       <div className="flex flex-col min-h-screen w-full bg-gray-100">
         {/* Global Navbar */}
         <Navbar
-          User={user}
+          User={User}
           Logout={handleLogout}
         />
 

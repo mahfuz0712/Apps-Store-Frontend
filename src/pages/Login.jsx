@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import api from "../apis/v1/v1";
 import axios from "axios";
 import swal from "sweetalert";
 import { X, Mail, Lock, User, Phone, Gift, ArrowRight, CreditCard, CheckCircle, Clock, AlertCircle } from "lucide-react";
@@ -14,11 +15,11 @@ const Login = () => {
   
   // Sign Up Modal States
   const [showSignUpModal, setShowSignUpModal] = useState(false);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [Name, setName] = useState("");
+  const [Email, setEmail] = useState("");
+  const [Phone, setPhone] = useState("");
+  const [Password, setPassword] = useState("");
+  const [ConfirmPassword, setConfirmPassword] = useState("");
   
   // Developer Application Modal States
   const [showDevModal, setShowDevModal] = useState(false);
@@ -69,7 +70,7 @@ const Login = () => {
         try {
           setLoading(true);
           const loginUrl = import.meta.env.VITE_LOGIN;
-          const response = await axios.post(loginUrl, {
+          const response = await api.post(loginUrl, {
             Email: emailForLogin,
             Password: passwordForLogin,
           });
@@ -124,7 +125,7 @@ const Login = () => {
   const handleSignUp = async (e) => {
     e.preventDefault();
     
-    if (password !== confirmPassword) {
+    if (Password !== ConfirmPassword) {
       return swal({
         title: "Error",
         text: "Passwords do not match",
@@ -134,18 +135,18 @@ const Login = () => {
     
     try {
       setLoading(true);
-      const signUpUrl = import.meta.env.VITE_SIGNUP;
-      const response = await axios.post(signUpUrl, {
-        Name: name,
-        Email: email,
-        Phone: phone,
-        Password: password,
+      const signUpUrl = import.meta.env.VITE_CREATE_USER;
+      const response = await api.post(signUpUrl, {
+        Name: Name,
+        Email: Email,
+        Phone: Phone,
+        Password: Password,
       });
       
       if (response.data?.success) {
         setShowSignUpModal(false);
         // Redirect to OTP verification
-        navigate(`/otp?email=${email}`);
+        navigate(`/otp?email=${Email}`);
       } else {
         swal({
           title: "Registration Failed",
@@ -207,7 +208,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 pt-20 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
@@ -226,7 +227,7 @@ const Login = () => {
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400" />
+                  {Mail && <Mail className="h-5 w-5 text-gray-400" />}
                 </div>
                 <input
                   id="email"
@@ -248,7 +249,7 @@ const Login = () => {
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
+                  {Lock && <Lock className="h-5 w-5 text-gray-400" />}
                 </div>
                 <input
                   id="password"
@@ -289,7 +290,7 @@ const Login = () => {
                 type="submit"
                 isLoading={loading}
                 fullWidth
-                rightIcon={<ArrowRight className="h-4 w-4" />}
+                rightIcon={ArrowRight ? <ArrowRight className="h-4 w-4" /> : null}
               >
                 Sign in
               </Button>
@@ -356,14 +357,14 @@ const Login = () => {
             <div className="bg-gradient-to-r from-indigo-600 to-blue-700 px-8 py-6">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-white flex items-center">
-                  <User className="h-6 w-6 mr-3" />
+                  {User && <User className="h-6 w-6 mr-3" />}
                   Create an Account
                 </h2>
                 <button
                   onClick={() => setShowSignUpModal(false)}
                   className="text-white/80 hover:text-white focus:outline-none bg-white/10 hover:bg-white/20 rounded-full p-1 transition-colors"
                 >
-                  <X className="w-6 h-6" />
+                  {X && <X className="w-6 h-6" />}
                 </button>
               </div>
               <p className="text-indigo-100 mt-2 max-w-xl">
@@ -464,13 +465,13 @@ const Login = () => {
                       </label>
                       <div className="relative rounded-md shadow-sm">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <User className="h-5 w-5 text-gray-400" />
+                          {User && <User className="h-5 w-5 text-gray-400" />}
                         </div>
                         <input
                           id="name"
                           type="text"
                           placeholder="Enter your full name"
-                          value={name}
+                          value={Name}
                           onChange={(e) => setName(e.target.value)}
                           className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                           required
@@ -484,13 +485,13 @@ const Login = () => {
                       </label>
                       <div className="relative rounded-md shadow-sm">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <Mail className="h-5 w-5 text-gray-400" />
+                          {Mail && <Mail className="h-5 w-5 text-gray-400" />}
                         </div>
                         <input
                           id="signup-email"
                           type="email"
                           placeholder="you@example.com"
-                          value={email}
+                          value={Email}
                           onChange={(e) => setEmail(e.target.value)}
                           className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                           required
@@ -505,13 +506,13 @@ const Login = () => {
                     </label>
                     <div className="relative rounded-md shadow-sm">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Phone className="h-5 w-5 text-gray-400" />
+                        {Phone && <Phone className="h-5 w-5 text-gray-400" />}
                       </div>
                       <input
                         id="phone"
                         type="tel"
                         placeholder="01XXXXXXXXX"
-                        value={phone}
+                        value={Phone}
                         onChange={(e) => setPhone(e.target.value)}
                         className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         required
@@ -526,13 +527,13 @@ const Login = () => {
                       </label>
                       <div className="relative rounded-md shadow-sm">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <Lock className="h-5 w-5 text-gray-400" />
+                          {Lock && <Lock className="h-5 w-5 text-gray-400" />}
                         </div>
                         <input
                           id="signup-password"
                           type="password"
                           placeholder="Create a password"
-                          value={password}
+                          value={Password}
                           onChange={(e) => setPassword(e.target.value)}
                           className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                           required
@@ -546,13 +547,13 @@ const Login = () => {
                       </label>
                       <div className="relative rounded-md shadow-sm">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <Lock className="h-5 w-5 text-gray-400" />
+                          {Lock && <Lock className="h-5 w-5 text-gray-400" />}
                         </div>
                         <input
                           id="confirm-password"
                           type="password"
                           placeholder="Confirm your password"
-                          value={confirmPassword}
+                          value={ConfirmPassword}
                           onChange={(e) => setConfirmPassword(e.target.value)}
                           className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                           required
@@ -610,14 +611,14 @@ const Login = () => {
             <div className="bg-gradient-to-r from-indigo-600 to-blue-700 px-8 py-6">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-white flex items-center">
-                  <Gift className="h-6 w-6 mr-3" />
+                  {Gift && <Gift className="h-6 w-6 mr-3" />}
                   Developer Application
                 </h2>
                 <button
                   onClick={() => setShowDevModal(false)}
                   className="text-white/80 hover:text-white focus:outline-none bg-white/10 hover:bg-white/20 rounded-full p-1 transition-colors"
                 >
-                  <X className="w-6 h-6" />
+                  {X && <X className="w-6 h-6" />}
                 </button>
               </div>
               <p className="text-indigo-100 mt-2 max-w-xl">
@@ -698,7 +699,7 @@ const Login = () => {
                       </label>
                       <div className="relative rounded-md shadow-sm">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <User className="h-5 w-5 text-gray-400" />
+                          {User && <User className="h-5 w-5 text-gray-400" />}
                         </div>
                         <input
                           id="dev-name"
@@ -718,7 +719,7 @@ const Login = () => {
                       </label>
                       <div className="relative rounded-md shadow-sm">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <Mail className="h-5 w-5 text-gray-400" />
+                          {Mail && <Mail className="h-5 w-5 text-gray-400" />}
                         </div>
                         <input
                           id="dev-email"
@@ -740,7 +741,7 @@ const Login = () => {
                       </label>
                       <div className="relative rounded-md shadow-sm">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <Phone className="h-5 w-5 text-gray-400" />
+                          {Phone && <Phone className="h-5 w-5 text-gray-400" />}
                         </div>
                         <input
                           id="dev-phone"
@@ -760,7 +761,7 @@ const Login = () => {
                       </label>
                       <div className="relative rounded-md shadow-sm">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <CreditCard className="h-5 w-5 text-gray-400" />
+                          {CreditCard && <CreditCard className="h-5 w-5 text-gray-400" />}
                         </div>
                         <input
                           id="transaction"
@@ -795,13 +796,13 @@ const Login = () => {
                     <div className="mt-4 bg-gradient-to-r from-amber-50 to-yellow-50 border-l-4 border-amber-400 p-3 rounded-r-md">
                       <div className="flex">
                         <div className="flex-shrink-0">
-                          <AlertCircle className="h-5 w-5 text-amber-500" />
+                          {AlertCircle && <AlertCircle className="h-5 w-5 text-amber-500" />}
                         </div>
                         <div className="ml-3">
-                          <h4 className="text-sm font-medium text-amber-800">Refund Policy</h4>
-                          <p className="text-xs text-amber-700 mt-1">
-                            If you don't receive a response within 72 hours, your payment will be automatically refunded.
-                          </p>
+                          <h3 className="text-sm font-medium text-amber-800">Refund Policy</h3>
+                          <div className="mt-2 text-sm text-amber-700">
+                            <p>If your application is rejected, your payment will be refunded within 5 business days.</p>
+                          </div>
                         </div>
                       </div>
                     </div>

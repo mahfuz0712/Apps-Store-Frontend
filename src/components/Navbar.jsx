@@ -97,13 +97,13 @@ const Navbar = ({ User: CurrentUser, Logout }) => {
               {CurrentUser ? (
                 <div className="flex items-center">
                   <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center mr-1 overflow-hidden">
-                    {CurrentUser.avatar ? (
-                      <img src={CurrentUser.avatar} alt={CurrentUser.name} className="w-full h-full object-cover" />
+                    {CurrentUser.Avatar ? (
+                      <img src={CurrentUser.Avatar} alt={CurrentUser.Name} className="w-full h-full object-cover" />
                     ) : (
                       <User className="w-4 h-4" />
                     )}
                   </div>
-                  <span className="hidden md:inline text-sm font-medium">{CurrentUser.name?.split(' ')[0]}</span>
+                  <span className="hidden md:inline text-sm font-medium">{CurrentUser.Name?.split(' ')[0]}</span>
                 </div>
               ) : (
                 <User className="w-5 h-5" />
@@ -129,7 +129,7 @@ const Navbar = ({ User: CurrentUser, Logout }) => {
                           Profile
                         </Link>
                       </li>
-                      {CurrentUser.role === "developer" && (
+                      {CurrentUser.Role === "Developer" && (
                         <li>
                           <Link
                             to="/developer/dashboard"
@@ -139,7 +139,7 @@ const Navbar = ({ User: CurrentUser, Logout }) => {
                           </Link>
                         </li>
                       )}
-                      {CurrentUser.role === "admin" && (
+                      {CurrentUser.Role === "Admin" && (
                         <li>
                           <Link
                             to="/admin"
