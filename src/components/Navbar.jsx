@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Search, User } from "lucide-react";
 
 const Navbar = ({ User: CurrentUser, Logout }) => {
@@ -10,6 +10,13 @@ const Navbar = ({ User: CurrentUser, Logout }) => {
   const dropdownRef = useRef();
   const searchRef = useRef();
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Check paths where search should be hidden
+  const isAdminPage = location.pathname === "/admin";
+  const isProfilePage = location.pathname === "/profile";
+  const isSettingsPage = location.pathname === "/settings";
+  const hideSearchPaths = isAdminPage || isProfilePage || isSettingsPage;
 
   const toggleDropdown = () => setDropdownOpen((prev) => !prev);
   const toggleSearch = () => setShowSearch((prev) => !prev);
@@ -52,40 +59,42 @@ const Navbar = ({ User: CurrentUser, Logout }) => {
 
         {/* Search and User Icons */}
         <div className="flex items-center space-x-3">
-          {/* Search */}
-          <div className="relative" ref={searchRef}>
-            <button
-              onClick={toggleSearch}
-              className="p-2 rounded-full hover:bg-indigo-500 transition"
-              aria-label="Search"
-            >
-              <Search className="w-5 h-5" />
-            </button>
-            
-            {showSearch && (
-              <form 
-                onSubmit={handleSearch}
-                className="absolute right-0 mt-2 w-64 md:w-80 bg-white rounded-lg shadow-lg z-50 animate-fade-in overflow-hidden"
+          {/* Search - Only show on appropriate pages */}
+          {!hideSearchPaths && (
+            <div className="relative" ref={searchRef}>
+              <button
+                onClick={toggleSearch}
+                className="p-2 rounded-full hover:bg-indigo-500 transition"
+                aria-label="Search"
               >
-                <div className="flex items-center">
-                  <input
-                    type="text"
-                    placeholder="Search apps & games..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full px-4 py-2 text-gray-800 focus:outline-none"
-                    autoFocus
-                  />
-                  <button 
-                    type="submit"
-                    className="p-2 text-gray-500 hover:text-indigo-600"
-                  >
-                    <Search className="w-5 h-5" />
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
+                <Search className="w-5 h-5" />
+              </button>
+              
+              {showSearch && (
+                <form 
+                  onSubmit={handleSearch}
+                  className="absolute right-0 mt-2 w-64 md:w-80 bg-white rounded-lg shadow-lg z-50 animate-fade-in overflow-hidden"
+                >
+                  <div className="flex items-center">
+                    <input
+                      type="text"
+                      placeholder="Search apps & games..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full px-4 py-2 text-gray-800 focus:outline-none"
+                      autoFocus
+                    />
+                    <button 
+                      type="submit"
+                      className="p-2 text-gray-500 hover:text-indigo-600"
+                    >
+                      <Search className="w-5 h-5" />
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          )}
 
           {/* User Menu */}
           <div className="relative" ref={dropdownRef}>

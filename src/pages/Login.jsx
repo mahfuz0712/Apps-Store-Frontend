@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import {api} from "../apis/v1/v1";
+import { api } from "../apis/v1/v1";
 import swal from "sweetalert";
 import {
   X,
@@ -80,44 +80,55 @@ const Login = () => {
       default:
         try {
           setLoading(true);
-          const loginUrl = import.meta.env.VITE_LOGIN;
+          const loginUrl = import.meta.env.VITE_USER_LOGIN;
           const response = await api.post(loginUrl, {
             Email: emailForLogin,
             Password: passwordForLogin,
           });
 
-          if (response.data?.success) {
-            const userData = response.data.user;
-            localStorage.setItem(
-              "user",
-              JSON.stringify({
-                name: userData.name,
-                role: userData.role,
-                email: userData.email,
-                phone: userData.phone,
-                avatar: userData.avatar,
-                coverImage: userData.coverImage,
-                created_at: userData.created_at,
-                updated_at: userData.updated_at,
-                git_token: userData.git_token,
-              })
-            );
-            if (userData.role === "admin") {
-              sessionStorage.setItem("isAdmin", "true");
-              sessionStorage.setItem("isLoggedIn", "true");
-              navigate("/admin");
-            } else if (userData.role === "developer") {
-              sessionStorage.setItem("isDeveloper", "true");
-              sessionStorage.setItem("isLoggedIn", "true");
-              navigate("/developer/dashboard");
+
+          
+          // Check if the response was successful
+          if (response.data && response.data.success) {
+            // The actual user data is in the 'data' property of the response
+            const userData = response.data.data;
+            if (userData) {
+              localStorage.setItem(
+                "User",
+                JSON.stringify({
+                  UserID: userData._id,
+                  Role: userData.Role,
+                })
+              );
+              
+              // Try to get role with both lowercase and uppercase first letter
+              const userRole = userData.Role || userData.role;
+              
+              
+              if (userRole === "Admin" || userRole === "admin") {
+                sessionStorage.setItem("isAdmin", true);
+                sessionStorage.setItem("isLoggedIn", true);
+                navigate("/admin");
+              } else if (userRole === "Developer" || userRole === "developer") {
+                sessionStorage.setItem("isDeveloper", true);
+                sessionStorage.setItem("isLoggedIn", true);
+                navigate("/developer/dashboard");
+              } else {
+                sessionStorage.setItem("isUser", true);
+                sessionStorage.setItem("isLoggedIn", true);
+                navigate("/");
+              }
             } else {
-              sessionStorage.setItem("isLoggedIn", "true");
-              navigate("/");
+              swal({
+                title: "Login Error",
+                text: "User data not found in response",
+                icon: "error",
+              });
             }
           } else {
             swal({
-              title: "Failed Login",
-              text: response.data.message,
+              title: "Login failed",
+              text: response.data.message || "Authentication failed",
               icon: "error",
             });
           }
@@ -655,17 +666,11 @@ const Login = () => {
                         </label>
                         <p className="text-gray-500">
                           By signing up, you agree to our{" "}
-                          <Link
-                            to="/terms"
-                            className="text-indigo-600"
-                          >
+                          <Link to="/terms" className="text-indigo-600">
                             terms of service
                           </Link>{" "}
                           and{" "}
-                          <Link
-                            to="/privacy"
-                            className="text-indigo-600"
-                          >
+                          <Link to="/privacy" className="text-indigo-600">
                             privacy policy
                           </Link>
                           .

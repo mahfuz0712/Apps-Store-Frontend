@@ -1,14 +1,14 @@
 import { Navigate } from "react-router-dom";
 
 const PrivateRoute = ({ children, requiredRole }) => {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const User = JSON.parse(localStorage.getItem("User"));
   const isLoggedIn = sessionStorage.getItem("isLoggedIn") === "true";
 
-  if (!isLoggedIn || !user) {
+  if (!isLoggedIn || !User) {
     return <Navigate to="/login" />;
   }
 
-  if (requiredRole && user.role !== requiredRole) {
+  if (requiredRole && User.Role !== requiredRole) {
     return <Navigate to="/" />;
   }
 

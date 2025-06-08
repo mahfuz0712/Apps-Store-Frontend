@@ -106,7 +106,7 @@ function App() {
             <Route
               path="/admin"
               element={
-                <PrivateRoute requiredRole="admin">
+                <PrivateRoute requiredRole="Admin">
                   <ErrorBoundary FallbackComponent={ErrorFallback}>
                     <AdminDashboard />
                   </ErrorBoundary>
@@ -116,7 +116,7 @@ function App() {
             <Route 
               path="/admin/users" 
               element={
-                <PrivateRoute requiredRole="admin">
+                <PrivateRoute requiredRole="Admin">
                   <ErrorBoundary FallbackComponent={ErrorFallback}>
                     <UserManagement />
                   </ErrorBoundary>
@@ -126,7 +126,7 @@ function App() {
             <Route 
               path="/admin/apps" 
               element={
-                <PrivateRoute requiredRole="admin">
+                <PrivateRoute requiredRole="Admin">
                   <ErrorBoundary FallbackComponent={ErrorFallback}>
                     <AppManagement />
                   </ErrorBoundary>
@@ -138,7 +138,7 @@ function App() {
             <Route
               path="/developer/dashboard"
               element={
-                <PrivateRoute requiredRole="developer">
+                <PrivateRoute requiredRole="Developer">
                   <ErrorBoundary FallbackComponent={ErrorFallback}>
                     <DeveloperDashboard />
                   </ErrorBoundary>
@@ -148,7 +148,7 @@ function App() {
             <Route
               path="/developer/apps"
               element={
-                <PrivateRoute requiredRole="developer">
+                <PrivateRoute requiredRole="Developer">
                   <ErrorBoundary FallbackComponent={ErrorFallback}>
                     <AppManagement isDeveloper={true} />
                   </ErrorBoundary>

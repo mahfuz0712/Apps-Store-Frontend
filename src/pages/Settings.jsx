@@ -26,19 +26,19 @@ const Settings = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex items-center mb-8">
-        <div className="w-1 h-6 bg-green-600 rounded-full mr-3"></div>
+        <div className="w-1 h-6 bg-indigo-600 rounded-full mr-3"></div>
         <h1 className="text-3xl font-bold text-gray-900">Account Settings</h1>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-xl shadow-md">
           <div className="flex items-center mb-4">
-            <User className="h-5 w-5 text-green-600 mr-2" />
+            <User className="h-5 w-5 text-indigo-600 mr-2" />
             <h2 className="text-xl font-semibold text-gray-800">Profile Settings</h2>
           </div>
           <p className="text-gray-600 mb-4">Manage your personal information and account preferences</p>
           <button
-            className="w-full py-3 px-4 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-sm font-medium rounded-xl transition-all shadow-sm hover:shadow"
+            className="w-full py-3 px-4 bg-gradient-to-r from-indigo-600 to-blue-700 hover:from-indigo-700 hover:to-blue-800 text-white text-sm font-medium rounded-xl transition-all shadow-sm hover:shadow"
             onClick={openModal1}
           >
             Manage Profile
@@ -47,12 +47,12 @@ const Settings = () => {
         
         <div className="bg-white p-6 rounded-xl shadow-md">
           <div className="flex items-center mb-4">
-            <Key className="h-5 w-5 text-green-600 mr-2" />
+            <Key className="h-5 w-5 text-indigo-600 mr-2" />
             <h2 className="text-xl font-semibold text-gray-800">Security</h2>
           </div>
           <p className="text-gray-600 mb-4">Update your password and secure your account</p>
           <button
-            className="w-full py-3 px-4 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-sm font-medium rounded-xl transition-all shadow-sm hover:shadow"
+            className="w-full py-3 px-4 bg-gradient-to-r from-indigo-600 to-blue-700 hover:from-indigo-700 hover:to-blue-800 text-white text-sm font-medium rounded-xl transition-all shadow-sm hover:shadow"
             onClick={openModal2}
           >
             Security Settings
@@ -67,7 +67,7 @@ const Settings = () => {
           <div className="bg-white p-6 md:p-8 rounded-2xl shadow-xl w-full max-w-3xl z-10">
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center">
-                <User className="h-6 w-6 text-green-600 mr-2" />
+                <User className="h-6 w-6 text-indigo-600 mr-2" />
                 <h2 className="text-2xl font-bold text-gray-800">Profile Settings</h2>
               </div>
               <button 
@@ -86,7 +86,7 @@ const Settings = () => {
                 <input
                   type="text"
                   placeholder="John Doe"
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white transition-all"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all"
                 />
               </div>
               
@@ -97,7 +97,7 @@ const Settings = () => {
                 <input
                   type="email"
                   placeholder="john@example.com"
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white transition-all"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all"
                 />
               </div>
               
@@ -107,7 +107,7 @@ const Settings = () => {
                 </label>
                 <textarea
                   placeholder="Tell us about yourself"
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white transition-all resize-none h-32"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all resize-none h-32"
                 ></textarea>
               </div>
             </div>
@@ -121,7 +121,7 @@ const Settings = () => {
               </button>
               <button
                 onClick={closeModal1}
-                className="px-6 py-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-sm font-medium rounded-lg transition-all shadow-sm hover:shadow"
+                className="px-6 py-2 bg-gradient-to-r from-indigo-600 to-blue-700 hover:from-indigo-700 hover:to-blue-800 text-white text-sm font-medium rounded-lg transition-all shadow-sm hover:shadow"
               >
                 Save Changes
               </button>
@@ -137,7 +137,7 @@ const Settings = () => {
           <div className="bg-white p-6 md:p-8 rounded-2xl shadow-xl w-full max-w-3xl z-10">
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center">
-                <Key className="h-6 w-6 text-green-600 mr-2" />
+                <Key className="h-6 w-6 text-indigo-600 mr-2" />
                 <h2 className="text-2xl font-bold text-gray-800">Security Settings</h2>
               </div>
               <button 
@@ -160,7 +160,7 @@ const Settings = () => {
                 <input
                   type="password"
                   placeholder="••••••••"
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white transition-all"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all"
                 />
               </div>
               
@@ -171,7 +171,7 @@ const Settings = () => {
                 <input
                   type="password"
                   placeholder="••••••••"
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white transition-all"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all"
                 />
               </div>
               
@@ -182,7 +182,7 @@ const Settings = () => {
                 <input
                   type="password"
                   placeholder="••••••••"
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white transition-all"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all"
                 />
               </div>
             </div>
@@ -196,7 +196,7 @@ const Settings = () => {
               </button>
               <button
                 onClick={closeModal2}
-                className="px-6 py-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-sm font-medium rounded-lg transition-all shadow-sm hover:shadow"
+                className="px-6 py-2 bg-gradient-to-r from-indigo-600 to-blue-700 hover:from-indigo-700 hover:to-blue-800 text-white text-sm font-medium rounded-lg transition-all shadow-sm hover:shadow"
               >
                 Update Password
               </button>
