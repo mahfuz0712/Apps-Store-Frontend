@@ -13,7 +13,7 @@ const AppCard = ({ app, hideButtons = false }) => {
     <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all overflow-hidden border border-gray-100">
       <div className="aspect-square overflow-hidden relative bg-indigo-50">
         <img
-          src={app.Icon || app.icon || "https://via.placeholder.com/512x512?text=No+Image"}
+          src={app.Logo || app.logo || "https://via.placeholder.com/512x512?text=No+Image"}
           alt={app.Name || app.name || "App"}
           className="w-full h-full object-cover"
           onError={handleImageError}

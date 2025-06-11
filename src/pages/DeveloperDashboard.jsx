@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import { api } from "../apis/v1/v1";
 import swal from "sweetalert";
 import { Plus, ChevronRight, Package, BarChart2, Users, Settings } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 const DeveloperDashboard = () => {
+  const { user: authUser } = useAuth();
   const [stats, setStats] = useState({
     totalApps: 0,
     activeApps: 0,
@@ -14,7 +16,6 @@ const DeveloperDashboard = () => {
   });
   const [recentApps, setRecentApps] = useState([]);
   const [loading, setLoading] = useState(true);
-  const user = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -22,11 +23,7 @@ const DeveloperDashboard = () => {
         setLoading(true);
         // Fetch dashboard data from backend
         const dashboardUrl = import.meta.env.VITE_DEVELOPER_DASHBOARD;
-        const response = await axios.get(dashboardUrl, {
-          headers: {
-            Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-          },
-        });
+        const response = await api.get(dashboardUrl);
 
         if (response.data?.success) {
           setStats(response.data.stats);
@@ -57,7 +54,7 @@ const DeveloperDashboard = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Developer Dashboard</h1>
-        <p className="text-gray-600">Welcome back, {user?.name}</p>
+        <p className="text-gray-600">Welcome back, {authUser?.Name || 'Developer'}</p>
       </div>
 
       {/* Stats Cards */}

@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import PropTypes from "prop-types";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Search, User } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
-const Navbar = ({ User: CurrentUser, Logout }) => {
+const Navbar = () => {
+  const { user: CurrentUser, logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -44,6 +45,11 @@ const Navbar = ({ User: CurrentUser, Logout }) => {
       setShowSearch(false);
       setSearchQuery("");
     }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
   };
 
   return (
@@ -108,12 +114,14 @@ const Navbar = ({ User: CurrentUser, Logout }) => {
                 <div className="flex items-center">
                   <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center mr-1 overflow-hidden">
                     {CurrentUser.Avatar ? (
-                      <img src={CurrentUser.Avatar} alt={CurrentUser.Name} className="w-full h-full object-cover" />
+                      <img src={CurrentUser.Avatar} alt="User" className="w-full h-full object-cover" />
                     ) : (
                       <User className="w-4 h-4" />
                     )}
                   </div>
-                  <span className="hidden md:inline text-sm font-medium">{CurrentUser.Name?.split(' ')[0]}</span>
+                  <span className="hidden md:inline text-sm font-medium">
+                    {CurrentUser.Name || 'User'}
+                  </span>
                 </div>
               ) : (
                 <User className="w-5 h-5" />
@@ -169,7 +177,7 @@ const Navbar = ({ User: CurrentUser, Logout }) => {
                       </li>
                       <li>
                         <button
-                          onClick={Logout}
+                          onClick={handleLogout}
                           className="w-full text-left px-4 py-3 text-red-600 hover:bg-gray-50 transition"
                         >
                           Logout
@@ -196,11 +204,6 @@ const Navbar = ({ User: CurrentUser, Logout }) => {
       </div>
     </header>
   );
-};
-
-Navbar.propTypes = {
-  User: PropTypes.object,
-  Logout: PropTypes.func.isRequired,
 };
 
 export default Navbar;

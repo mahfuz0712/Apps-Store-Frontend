@@ -17,9 +17,11 @@ import {
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import Button from "../components/Button";
+import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [emailForLogin, setEmailForLogin] = useState("");
   const [passwordForLogin, setPasswordForLogin] = useState("");
   const [loading, setLoading] = useState(false);
@@ -31,6 +33,8 @@ const Login = () => {
   const [PhoneNumber, setPhoneNumber] = useState("");
   const [Password, setPassword] = useState("");
   const [ConfirmPassword, setConfirmPassword] = useState("");
+  const [passwordStrength, setPasswordStrength] = useState(0);
+  const [passwordFeedback, setPasswordFeedback] = useState("");
 
   // Developer Application Modal States
   const [showDevModal, setShowDevModal] = useState(false);
@@ -80,52 +84,21 @@ const Login = () => {
       default:
         try {
           setLoading(true);
-          const loginUrl = import.meta.env.VITE_USER_LOGIN;
-          const response = await api.post(loginUrl, {
-            Email: emailForLogin,
-            Password: passwordForLogin,
-          });
+          const result = await login(emailForLogin, passwordForLogin);
 
-          // Check if the response was successful
-          if (response.data && response.data.success) {
-            // The actual user data is in the 'data' property of the response
-            const userData = response.data.data;
-            if (userData) {
-              localStorage.setItem(
-                "User",
-                JSON.stringify({
-                  UserID: userData._id,
-                  Role: userData.Role,
-                })
-              );
-
-              // Try to get role with both lowercase and uppercase first letter
-              const userRole = userData.Role || userData.role;
-
-              if (userRole === "Admin" || userRole === "admin") {
-                sessionStorage.setItem("isAdmin", true);
-                sessionStorage.setItem("isLoggedIn", true);
+          if (result.success) {
+            // Navigate based on role
+            if (result.role === "Admin" || result.role === "admin") {
                 navigate("/admin");
-              } else if (userRole === "Developer" || userRole === "developer") {
-                sessionStorage.setItem("isDeveloper", true);
-                sessionStorage.setItem("isLoggedIn", true);
+            } else if (result.role === "Developer" || result.role === "developer") {
                 navigate("/developer/dashboard");
               } else {
-                sessionStorage.setItem("isUser", true);
-                sessionStorage.setItem("isLoggedIn", true);
                 navigate("/");
-              }
-            } else {
-              swal({
-                title: "Login Error",
-                text: "User data not found in response",
-                icon: "error",
-              });
             }
           } else {
             swal({
               title: "Login failed",
-              text: response.data.message || "Authentication failed",
+              text: result.message || "Authentication failed",
               icon: "error",
             });
           }
@@ -141,8 +114,145 @@ const Login = () => {
     }
   };
 
+  // Password strength checker
+  const checkPasswordStrength = (password) => {
+    let strength = 0;
+    let feedback = "";
+
+    if (password.length >= 8) {
+      strength += 1;
+    } else {
+      feedback = "Password should be at least 8 characters long";
+      setPasswordStrength(strength);
+      setPasswordFeedback(feedback);
+      return;
+    }
+
+    if (/[A-Z]/.test(password)) {
+      strength += 1;
+    } else {
+      feedback = "Add an uppercase letter";
+      setPasswordStrength(strength);
+      setPasswordFeedback(feedback);
+      return;
+    }
+
+    if (/[a-z]/.test(password)) {
+      strength += 1;
+    } else {
+      feedback = "Add a lowercase letter";
+      setPasswordStrength(strength);
+      setPasswordFeedback(feedback);
+      return;
+    }
+
+    if (/[0-9]/.test(password)) {
+      strength += 1;
+    } else {
+      feedback = "Add a number";
+      setPasswordStrength(strength);
+      setPasswordFeedback(feedback);
+      return;
+    }
+
+    if (/[^A-Za-z0-9]/.test(password)) {
+      strength += 1;
+    } else {
+      feedback = "Add a special character";
+      setPasswordStrength(strength);
+      setPasswordFeedback(feedback);
+      return;
+    }
+
+    // Set feedback based on final strength
+    if (strength <= 2) {
+      feedback = "Weak password";
+    } else if (strength <= 4) {
+      feedback = "Medium strength password";
+    } else {
+      feedback = "Strong password";
+    }
+
+    setPasswordStrength(strength);
+    setPasswordFeedback(feedback);
+  };
+
+  // Handle password change
+  const handlePasswordChange = (e) => {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+    if (newPassword) {
+      checkPasswordStrength(newPassword);
+    } else {
+      setPasswordStrength(0);
+      setPasswordFeedback("");
+    }
+  };
+
   const handleSignUp = async (e) => {
     e.preventDefault();
+
+    // Enhanced validation
+    if (!Name.trim()) {
+      return swal({
+        title: "Error",
+        text: "Please enter your full name",
+        icon: "error",
+      });
+    }
+
+    if (!Email.trim()) {
+      return swal({
+        title: "Error",
+        text: "Please enter your email address",
+        icon: "error",
+      });
+    }
+
+    // Email validation regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(Email)) {
+      return swal({
+        title: "Error",
+        text: "Please enter a valid email address",
+        icon: "error",
+      });
+    }
+
+    if (!PhoneNumber.trim()) {
+      return swal({
+        title: "Error",
+        text: "Please enter your phone number",
+        icon: "error",
+      });
+    }
+
+    // Phone number validation for Bangladesh (11 digits starting with 01)
+    const phoneRegex = /^01\d{9}$/;
+    if (!phoneRegex.test(PhoneNumber)) {
+      return swal({
+        title: "Error",
+        text: "Please enter a valid phone number (e.g., 01XXXXXXXXX)",
+        icon: "error",
+      });
+    }
+
+    if (!Password) {
+      return swal({
+        title: "Error",
+        text: "Please enter a password",
+        icon: "error",
+      });
+    }
+
+    // Password strength validation
+    if (passwordStrength < 3) {
+      return swal({
+        title: "Weak Password",
+        text: `Please create a stronger password. ${passwordFeedback}`,
+        icon: "warning",
+      });
+    }
 
     if (Password !== ConfirmPassword) {
       return swal({
@@ -163,20 +273,37 @@ const Login = () => {
       });
 
       if (response.data?.success) {
-        setShowSignUpModal(false);
-        // Redirect to OTP verification
-        navigate(`/otp?email=${Email}`);
+        // Show success message before redirecting
+        swal({
+          title: "Success!",
+          text: "OTP has been sent to your email. Please verify to complete registration.",
+          icon: "success",
+          buttons: {
+            confirm: {
+              text: "Verify Now",
+              value: true,
+              visible: true,
+              className: "bg-indigo-600 hover:bg-indigo-700",
+              closeModal: true,
+            },
+          },
+        }).then(() => {
+          setShowSignUpModal(false);
+          // Redirect to OTP verification
+          navigate(`/otp?email=${Email}`);
+        });
       } else {
         swal({
           title: "Registration Failed",
-          text: response.data.message,
+          text: response.data.message || "Could not send OTP. Please try again.",
           icon: "error",
         });
       }
     } catch (error) {
+      console.error("Signup error:", error);
       swal({
         title: "Error",
-        text: `Could not connect to the server: ${error.message}`,
+        text: error.response?.data?.message || "Could not connect to the server. Please try again later.",
         icon: "error",
       });
     } finally {
@@ -621,15 +748,42 @@ const Login = () => {
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                           {Lock && <Lock className="h-5 w-5 text-gray-400" />}
                         </div>
-                        <input
-                          id="signup-password"
-                          type="password"
-                          placeholder="Create a password"
-                          value={Password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                          required
-                        />
+                        <div className="space-y-1">
+                          <input
+                            id="signup-password"
+                            type="password"
+                            placeholder="Create a password"
+                            value={Password}
+                            onChange={handlePasswordChange}
+                            className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            required
+                          />
+                          {Password && (
+                            <>
+                              <div className="flex w-full h-1 mt-1 bg-gray-200 rounded-full overflow-hidden">
+                                <div 
+                                  className={`h-full ${
+                                    passwordStrength <= 2
+                                      ? "bg-red-500"
+                                      : passwordStrength <= 4
+                                      ? "bg-yellow-500"
+                                      : "bg-green-500"
+                                  }`}
+                                  style={{ width: `${(passwordStrength / 5) * 100}%` }}
+                                ></div>
+                              </div>
+                              <p className={`text-xs ${
+                                passwordStrength <= 2
+                                  ? "text-red-500"
+                                  : passwordStrength <= 4
+                                  ? "text-yellow-500"
+                                  : "text-green-500"
+                              }`}>
+                                {passwordFeedback}
+                              </p>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
 
@@ -696,11 +850,16 @@ const Login = () => {
                       variant="outline"
                       onClick={() => setShowSignUpModal(false)}
                       className="mr-3"
+                      disabled={loading}
                     >
                       Cancel
                     </Button>
-                    <Button type="submit" isLoading={loading}>
-                      Create Account
+                    <Button 
+                      type="submit" 
+                      isLoading={loading}
+                      rightIcon={loading ? null : <ArrowRight className="h-4 w-4" />}
+                    >
+                      {loading ? "Creating Account..." : "Create Account"}
                     </Button>
                   </div>
                 </form>

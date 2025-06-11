@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
 import { Star, Download, ChevronRight, ChevronLeft } from "lucide-react";
+import { api } from "../apis/v1/v1";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -12,18 +12,18 @@ const Dashboard = () => {
   const [filteredApps, setFilteredApps] = useState([]);
   const [categorizedApps, setCategorizedApps] = useState({});
   // Track scroll position for each category
-  const [scrollPositions, setScrollPositions] = useState({});
   const categoryRowRefs = useRef({});
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      const appsEndpoint = import.meta.env.VITE_GET_APPS;
-      const categoriesEndpoint = import.meta.env.VITE_CATEGORIES;
+      // Use environment variables for API endpoints with fallbacks
+      const appsEndpoint = import.meta.env.VITE_GET_APPS || "/apps";
+      const categoriesEndpoint = import.meta.env.VITE_APPS_CATEGORIES || "/apps/categories";
       
       try {
         // Fetch apps
-        const appsResponse = await axios.get(appsEndpoint);
+        const appsResponse = await api.get(appsEndpoint);
         const appsData = appsResponse.data.data.appsList;
         setApps(appsData);
         setFilteredApps(appsData);
@@ -67,7 +67,7 @@ const Dashboard = () => {
         
         // Fetch categories or use default categories
         try {
-          const categoriesResponse = await axios.get(categoriesEndpoint);
+          const categoriesResponse = await api.get(categoriesEndpoint);
           // Make sure categoriesResponse.data is an array
           const categoriesData = Array.isArray(categoriesResponse.data) 
             ? categoriesResponse.data 
@@ -76,7 +76,7 @@ const Dashboard = () => {
           setCategories(categoriesData);
         } catch (error) {
           console.error("Error fetching categories:", error);
-          // Default categories as fallback
+          // Default categories as fallback this should be coming from database backend
           setCategories([
             { id: 1, Name: "Games", Logo: "🎮" },
             { id: 2, Name: "Productivity", Logo: "📊" },
@@ -207,7 +207,7 @@ const Dashboard = () => {
                 <div className="p-4">
                   <h3 className="text-sm font-semibold text-gray-900 mb-1 truncate">{app.Name}</h3>
                   <div className="flex items-center text-xs text-gray-500 mb-3">
-                    <span>{app.Developer || "Unknown Developer"}</span>
+                    <span>{app.Publisher?.CompanyName || app.Publisher?.DevelopedBy || app.Developer || "Unknown Developer"}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <div className="flex items-center text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
@@ -225,7 +225,7 @@ const Dashboard = () => {
                   onClick={() => navigate(`/app/${app._id}`)}
                   className="w-full py-2 bg-gradient-to-r from-indigo-600 to-blue-700 hover:from-indigo-700 hover:to-blue-800 text-white text-sm font-medium rounded-lg transition-all shadow-sm hover:shadow"
                 >
-                  Download
+                  View Details
                 </button>
               </div>
             </div>
@@ -296,7 +296,7 @@ const Dashboard = () => {
                               <div className="p-4">
                                 <h3 className="text-sm font-semibold text-gray-900 mb-1 truncate">{app.Name}</h3>
                                 <div className="flex items-center text-xs text-gray-500 mb-2">
-                                  <span>{app.Developer || "Unknown Developer"}</span>
+                                  <span>{app.Publisher?.CompanyName || app.Publisher?.DevelopedBy || app.Developer || "Unknown Developer"}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                   <div className="flex items-center">
@@ -364,7 +364,7 @@ const Dashboard = () => {
                   <div className="p-4">
                     <h3 className="text-sm font-semibold text-gray-900 mb-1 truncate">{app.Name}</h3>
                     <div className="flex items-center text-xs text-gray-500 mb-2">
-                      <span>{app.Developer || "Unknown Developer"}</span>
+                      <span>{app.Publisher?.CompanyName || app.Publisher?.DevelopedBy || app.Developer || "Unknown Developer"}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <div className="flex items-center">
@@ -387,7 +387,7 @@ const Dashboard = () => {
                     onClick={() => navigate(`/app/${app._id}`)}
                     className="w-full py-2 bg-gradient-to-r from-indigo-600 to-blue-700 hover:from-indigo-700 hover:to-blue-800 text-white text-sm font-medium rounded-lg transition-all shadow-sm hover:shadow"
                   >
-                    Download
+                    View Details
                   </button>
                 </div>
               </div>

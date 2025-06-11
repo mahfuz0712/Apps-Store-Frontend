@@ -2,26 +2,27 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Mail, Phone, MapPin, Globe, Calendar, User, Edit, LogOut } from "lucide-react";
 import Button from "../components/Button";
+import { useAuth } from "../context/AuthContext";
 
 const Profile = () => {
+  const { user: authUser, logout } = useAuth();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Retrieve user details from localStorage
+  // Retrieve user details
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         setLoading(true);
         // In a real app, you would fetch user data from your API here
-        const storedUser = JSON.parse(localStorage.getItem("User"));
         
         // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 500));
         
-        if (storedUser) {
+        if (authUser) {
           // For demo, using hardcoded values with the stored UserID
           setUser({
-            _id: storedUser.UserID,
+            _id: authUser.UserID,
             name: "Mohammad Mahfuz Rahman",
             firstName: "Mohammad",
             lastName: "Rahman",
@@ -31,7 +32,7 @@ const Profile = () => {
             phone: "+880 1540148390",
             email: "mahfuz@admin.com",
             bio: "Full-stack developer specializing in MERN stack applications. Creator of Mahfuz's App Store and other web applications.",
-            role: storedUser.Role || "User",
+            role: authUser.Role || "User",
             joinedDate: "January 2023",
             profileImage: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400"
           });
@@ -44,13 +45,10 @@ const Profile = () => {
     };
 
     fetchUserData();
-  }, []);
+  }, [authUser]);
 
   const handleLogout = () => {
-    // Clear session storage and local storage
-    sessionStorage.clear();
-    localStorage.removeItem("User");
-    // Redirect to login page
+    logout();
     window.location.href = "/login";
   };
 
